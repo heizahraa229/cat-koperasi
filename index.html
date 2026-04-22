@@ -1,861 +1,144 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAT Simulator - SPPI Koperasi Merah Putih Indonesia</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #F0F2F5;
-            color: #333;
-        }
-        
-        .header {
-            background: #1B3A5C;
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
-        .header-left, .header-center, .header-right {
-            flex: 1;
-        }
-        
-        .header-center {
-            text-align: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        
-        .header-right {
-            text-align: right;
-        }
-        
-        .timer {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        .timer.warning {
-            color: #ff4444;
-            animation: blink 1s infinite;
-        }
-        
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.3; }
-        }
-        
-        .question-timer-bar {
-            height: 5px;
-            background: #ddd;
-            position: relative;
-        }
-        
-        .question-timer-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #FFC107, #F44336);
-            transition: width 0.1s linear;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
-        
-        .screen {
-            display: none;
-        }
-        
-        .screen.active {
-            display: block;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-        
-        .start-screen {
-            text-align: center;
-        }
-        
-        .start-screen h1 {
-            color: #1B3A5C;
-            margin-bottom: 10px;
-        }
-        
-        .start-screen h2 {
-            color: #666;
-            font-weight: normal;
-            margin-bottom: 30px;
-        }
-        
-        .input-group {
-            margin: 20px 0;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            text-align: left;
-        }
-        
-        .input-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        
-        .session-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin: 30px 0;
-        }
-        
-        .session-btn {
-            background: white;
-            border: 2px solid #1B3A5C;
-            color: #1B3A5C;
-            padding: 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 16px;
-        }
-        
-        .session-btn:hover {
-            background: #1B3A5C;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(27, 58, 92, 0.3);
-        }
-        
-        .session-btn h3 {
-            margin-bottom: 10px;
-        }
-        
-        .session-btn p {
-            font-size: 14px;
-            opacity: 0.8;
-        }
-        
-        .btn {
-            background: #1B3A5C;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .btn:hover {
-            background: #2c5282;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        
-        .btn-success {
-            background: #28a745;
-        }
-        
-        .btn-success:hover {
-            background: #218838;
-        }
-        
-        .btn-danger {
-            background: #dc3545;
-        }
-        
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        
-        .test-layout {
-            display: grid;
-            grid-template-columns: 70% 30%;
-            gap: 20px;
-        }
-        
-        @media (max-width: 968px) {
-            .test-layout {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        .question-panel {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .question-number {
-            color: #1B3A5C;
-            font-weight: bold;
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-        
-        .question-text {
-            font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 25px;
-            color: #333;
-        }
-        
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .option {
-            background: #f8f9fa;
-            border: 2px solid #dee2e6;
-            padding: 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-        }
-        
-        .option:hover {
-            background: #e9ecef;
-            border-color: #1B3A5C;
-        }
-        
-        .option.selected {
-            background: #1B3A5C;
-            color: white;
-            border-color: #1B3A5C;
-        }
-        
-        .option-label {
-            font-weight: bold;
-            margin-right: 10px;
-            min-width: 30px;
-        }
-        
-        .question-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 25px;
-            flex-wrap: wrap;
-        }
-        
-        .nav-panel {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 20px;
-        }
-        
-        .nav-panel h3 {
-            color: #1B3A5C;
-            margin-bottom: 15px;
-        }
-        
-        .nav-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        
-        .nav-btn {
-            aspect-ratio: 1;
-            border: 2px solid #dee2e6;
-            background: #f8f9fa;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .nav-btn:hover {
-            transform: scale(1.05);
-        }
-        
-        .nav-btn.answered {
-            background: #28a745;
-            color: white;
-            border-color: #28a745;
-        }
-        
-        .nav-btn.flagged {
-            background: #ffc107;
-            color: #333;
-            border-color: #ffc107;
-        }
-        
-        .nav-btn.current {
-            border: 3px solid #007bff;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.3);
-        }
-        
-        .nav-legend {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .legend-box {
-            width: 20px;
-            height: 20px;
-            border-radius: 3px;
-            border: 2px solid #dee2e6;
-        }
-        
-        .legend-box.answered {
-            background: #28a745;
-            border-color: #28a745;
-        }
-        
-        .legend-box.flagged {
-            background: #ffc107;
-            border-color: #ffc107;
-        }
-        
-        .legend-box.unanswered {
-            background: #f8f9fa;
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        }
-        
-        .modal-content h2 {
-            color: #1B3A5C;
-            margin-bottom: 20px;
-        }
-        
-        .modal-stats {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 20px 0;
-        }
-        
-        .modal-stats p {
-            margin: 8px 0;
-        }
-        
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 20px;
-        }
-        
-        .result-screen {
-            text-align: center;
-        }
-        
-        .score-circle {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: 30px auto;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .score-circle.pass {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
-        
-        .score-circle.fail {
-            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
-        }
-        
-        .score-value {
-            font-size: 48px;
-            font-weight: bold;
-        }
-        
-        .score-label {
-            font-size: 16px;
-            opacity: 0.9;
-        }
-        
-        .result-status {
-            font-size: 32px;
-            font-weight: bold;
-            margin: 20px 0;
-        }
-        
-        .result-status.pass {
-            color: #28a745;
-        }
-        
-        .result-status.fail {
-            color: #dc3545;
-        }
-        
-        .result-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 30px 0;
-        }
-        
-        .stat-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #1B3A5C;
-        }
-        
-        .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #1B3A5C;
-        }
-        
-        .stat-label {
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        .category-breakdown {
-            text-align: left;
-            margin: 30px 0;
-        }
-        
-        .category-breakdown h3 {
-            color: #1B3A5C;
-            margin-bottom: 15px;
-        }
-        
-        .category-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .category-name {
-            font-weight: bold;
-        }
-        
-        .category-score {
-            color: #1B3A5C;
-            font-weight: bold;
-        }
-        
-        .result-actions {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 30px;
-        }
-        
-        .review-screen {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        .review-item {
-            background: white;
-            border-radius: 8px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .review-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
-        .review-number {
-            font-weight: bold;
-            color: #1B3A5C;
-            font-size: 18px;
-        }
-        
-        .review-status {
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .review-status.correct {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .review-status.wrong {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .review-question {
-            font-size: 16px;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-        
-        .review-options {
-            margin: 15px 0;
-        }
-        
-        .review-option {
-            padding: 10px 15px;
-            margin: 8px 0;
-            border-radius: 5px;
-            background: #f8f9fa;
-        }
-        
-        .review-option.user-answer {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-        }
-        
-        .review-option.correct-answer {
-            background: #d4edda;
-            border-left: 4px solid #28a745;
-            font-weight: bold;
-        }
-        
-        .review-option.wrong-answer {
-            background: #f8d7da;
-            border-left: 4px solid #dc3545;
-        }
-        
-        .review-explanation {
-            background: #e7f3ff;
-            padding: 15px;
-            border-radius: 5px;
-            margin-top: 15px;
-            border-left: 4px solid #007bff;
-        }
-        
-        .review-explanation strong {
-            color: #007bff;
-            display: block;
-            margin-bottom: 8px;
-        }
-        
-        .learn-screen {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        .learn-nav {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .learn-nav h2 {
-            color: #1B3A5C;
-            margin-bottom: 15px;
-        }
-        
-        .learn-topics {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
-        }
-        
-        .topic-btn {
-            background: #f8f9fa;
-            border: 2px solid #dee2e6;
-            padding: 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            font-weight: 500;
-        }
-        
-        .topic-btn:hover {
-            background: #1B3A5C;
-            color: white;
-            border-color: #1B3A5C;
-        }
-        
-        .learn-content {
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .learn-content h2 {
-            color: #1B3A5C;
-            margin-bottom: 20px;
-        }
-        
-        .learn-content h3 {
-            color: #2c5282;
-            margin-top: 25px;
-            margin-bottom: 15px;
-        }
-        
-        .learn-content ul {
-            margin-left: 20px;
-            line-height: 1.8;
-        }
-        
-        .learn-content p {
-            line-height: 1.8;
-            margin-bottom: 15px;
-        }
-        
-        .warning-banner {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        
-        .warning-banner.active {
-            display: block;
-        }
-        
-        .warning-banner strong {
-            color: #856404;
-        }
-        
-        .rules-box {
-            background: #f8f9fa;
-            border-left: 4px solid #1B3A5C;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 5px;
-        }
-        
-        .rules-box h3 {
-            color: #1B3A5C;
-            margin-bottom: 15px;
-        }
-        
-        .rules-box ul {
-            margin-left: 20px;
-            line-height: 1.8;
-        }
-        
-        .rules-box li {
-            margin-bottom: 8px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulasi CAT - SPPI Koperasi Merah Putih 2026</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f0f2f5;color:#333}
+.header{background:#1B3A5C;color:#fff;padding:12px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.header-center{font-weight:700;font-size:15px;text-align:center;flex:1}
+.header-left,.header-right{flex:0 0 auto;min-width:120px}
+.header-right{text-align:right}
+.timer{font-size:22px;font-weight:700}
+.timer.warning{color:#ff4444;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.4}}
+.welcome-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#1B3A5C,#2E7D32)}
+.welcome-card{background:#fff;padding:30px;border-radius:15px;box-shadow:0 10px 40px rgba(0,0,0,.3);max-width:650px;width:100%}
+.welcome-card h1{color:#1B3A5C;text-align:center;margin-bottom:5px}
+.welcome-card h2{color:#666;text-align:center;font-size:16px;margin-bottom:20px}
+.mode-btn{display:block;width:100%;border:none;padding:15px 20px;border-radius:8px;font-size:15px;cursor:pointer;text-align:left;margin-bottom:10px;color:#fff;transition:.2s}
+.mode-btn:hover{transform:translateY(-2px);opacity:.9}
+.mode-btn small{display:block;opacity:.8;font-size:12px;margin-top:3px}
+.rules-box{background:#f8f9fa;border-left:4px solid #1B3A5C;padding:15px 20px;border-radius:5px;margin:15px 0}
+.rules-box h3{color:#1B3A5C;margin-bottom:10px;font-size:15px}
+.rules-box ul{margin-left:20px;line-height:1.8;font-size:14px}
+.main-content{display:grid;grid-template-columns:1fr 260px;gap:15px;padding:15px;max-width:1200px;margin:0 auto}
+.question-panel{background:#fff;padding:25px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.question-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-size:14px}
+.cat-badge{background:#1B3A5C;color:#fff;padding:3px 12px;border-radius:12px;font-size:12px}
+.progress-bar{background:#e0e0e0;height:6px;border-radius:3px;margin-bottom:15px;overflow:hidden}
+.progress-fill{background:linear-gradient(90deg,#27ae60,#2ecc71);height:100%;transition:.3s}
+.question-text{font-size:16px;line-height:1.7;padding:15px;background:#f8f9fa;border-left:4px solid #1B3A5C;border-radius:5px;margin-bottom:20px}
+.options-container{display:flex;flex-direction:column;gap:10px}
+.option{padding:13px 15px;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:12px}
+.option:hover{border-color:#1B3A5C;background:#f5f7fa}
+.option.selected{border-color:#1B3A5C;background:#e3f2fd}
+.option-letter{font-weight:700;color:#1B3A5C;min-width:25px}
+.nav-buttons{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap}
+.nav-btn{padding:10px 16px;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;background:#1B3A5C;color:#fff;transition:.2s}
+.nav-btn:hover:not(:disabled){opacity:.85;transform:translateY(-1px)}
+.nav-btn:disabled{opacity:.4;cursor:not-allowed}
+.flag-btn{background:#f39c12}
+.flag-btn.active{background:#e74c3c}
+.sidebar{position:sticky;top:70px;height:fit-content}
+.sidebar-card{background:#fff;padding:15px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.question-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:10px 0;max-height:350px;overflow-y:auto}
+.grid-btn{aspect-ratio:1;border:1px solid #bdc3c7;background:#ecf0f1;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;padding:0}
+.grid-btn.answered{background:#27ae60;color:#fff;border-color:#27ae60}
+.grid-btn.flagged{background:#f39c12;color:#fff;border-color:#f39c12}
+.grid-btn.current{box-shadow:0 0 0 3px #1B3A5C}
+.review-item{background:#f8f9fa;padding:18px;border-radius:10px;margin-bottom:12px;border-left:5px solid #ddd}
+.review-item.correct{border-left-color:#27ae60}
+.review-item.wrong{border-left-color:#e74c3c}
+.review-item.empty{border-left-color:#95a5a6}
+.review-q{font-weight:700;margin-bottom:10px;font-size:14px}
+.review-opt{padding:6px 12px;margin:4px 0;border-radius:5px;font-size:13px}
+.review-opt.correct-ans{background:#d4edda;border:1px solid #27ae60;font-weight:700}
+.review-opt.user.wrong{background:#f8d7da;border:1px solid #e74c3c}
+.review-opt.user{background:#e3f2fd;border:1px solid #1B3A5C}
+.explanation{background:#fff3cd;padding:10px;border-radius:5px;margin-top:10px;font-size:13px;border-left:3px solid #f39c12}
+.warn-badge{position:fixed;top:10px;right:10px;background:#e74c3c;color:#fff;padding:8px 15px;border-radius:20px;font-size:12px;z-index:9999;display:none}
+@media(max-width:768px){.main-content{grid-template-columns:1fr}.sidebar{position:static}.question-grid{grid-template-columns:repeat(8,1fr)}.header-center{font-size:12px}}
+</style>
 </head>
 <body>
+<div class="warn-badge" id="warnBadge">⚠️ Peringatan: <span id="warnCount">0</span>/3</div>
 
-
-<!-- WELCOME SCREEN -->
 <div id="welcomeScreen" class="welcome-screen">
-    <div class="welcome-card">
-        <div class="welcome-header">
-            <div style="font-size:48px;margin-bottom:10px">🇮🇩</div>
-            <h1>SIMULASI CAT BKN</h1>
-            <h2>SPPI Koperasi Merah Putih 2026</h2>
-            <p style="color:#666;margin-top:5px">Formasi: Manajer KDKMP</p>
-        </div>
-        
-        <div class="rules-box">
-            <h3>📋 Alur Seleksi KDKMP:</h3>
-            <ul>
-                <li style="color:#999">1. Registrasi di phtc.panselnas.go.id</li>
-                <li style="color:#999">2. Seleksi Administrasi</li>
-                <li><strong style="color:#1B3A5C">3. Ujian CAT BKN ← ANDA DI SINI</strong></li>
-                <li style="color:#999">4. Tes SKT Kemenhan</li>
-                <li style="color:#999">5. Pengumuman & Pengangkatan</li>
-            </ul>
-        </div>
-
-        <div style="margin:20px 0">
-            <input type="text" id="inputNama" placeholder="Masukkan Nama Peserta" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:16px;margin-bottom:15px">
-        </div>
-
-        <h3 style="color:#1B3A5C;margin-bottom:15px">🎯 Pilih Mode Tes:</h3>
-        
-        <div style="display:grid;gap:10px">
-            <button onclick="mulaiTes('kognitif')" style="background:#1B3A5C;color:white;border:none;padding:15px;border-radius:8px;font-size:15px;cursor:pointer;text-align:left">
-                <strong>🧠 TES POTENSI KOGNITIF</strong><br>
-                <small style="opacity:0.8">Deret Angka, Aritmatika, Logika, Penalaran, Verbal — 60 soal / 90 menit</small>
-            </button>
-            <button onclick="mulaiTes('mental')" style="background:#2E7D32;color:white;border:none;padding:15px;border-radius:8px;font-size:15px;cursor:pointer;text-align:left">
-                <strong>🇮🇩 TES MENTAL IDEOLOGI</strong><br>
-                <small style="opacity:0.8">Pancasila, UUD 1945, NKRI, Bela Negara, Integritas — 60 soal / 60 menit</small>
-            </button>
-            <button onclick="mulaiTes('tkb')" style="background:#E65100;color:white;border:none;padding:15px;border-radius:8px;font-size:15px;cursor:pointer;text-align:left">
-                <strong>🏘️ TES MANAJEMEN BIDANG (KDKMP)</strong><br>
-                <small style="opacity:0.8">Koperasi, Manajemen, Keuangan — 50 soal / 45 menit</small>
-            </button>
-            <button onclick="mulaiTes('full')" style="background:#C62828;color:white;border:none;padding:15px;border-radius:8px;font-size:15px;cursor:pointer;text-align:left">
-                <strong>🎯 SIMULASI CAT PENUH</strong><br>
-                <small style="opacity:0.8">Kognitif + Mental + TKB — 110 soal / 120 menit</small>
-            </button>
-        </div>
-
-        <div class="rules-box" style="margin-top:20px">
-            <h3>⚠️ Tata Tertib Ujian:</h3>
-            <ul>
-                <li>Soal dan jawaban diacak setiap sesi</li>
-                <li>Bisa navigasi maju/mundur antar soal</li>
-                <li>Tandai soal ragu dengan tombol 🚩</li>
-                <li>Jangan pindah tab (max 3 peringatan)</li>
-                <li>Auto submit saat waktu habis</li>
-            </ul>
-        </div>
-    </div>
+<div class="welcome-card">
+<div style="text-align:center;font-size:48px;margin-bottom:10px">🇮🇩</div>
+<h1>SIMULASI CAT BKN</h1>
+<h2>SPPI Koperasi Merah Putih 2026 — Formasi Manajer KDKMP</h2>
+<div class="rules-box">
+<h3>📋 Alur Seleksi:</h3>
+<ul>
+<li style="color:#999">1. Registrasi phtc.panselnas.go.id</li>
+<li style="color:#999">2. Seleksi Administrasi</li>
+<li><strong style="color:#1B3A5C">3. Ujian CAT BKN ← ANDA DI SINI</strong></li>
+<li style="color:#999">4. Tes SKT Kemenhan</li>
+<li style="color:#999">5. Pengumuman</li>
+</ul>
+</div>
+<input type="text" id="inputNama" placeholder="Masukkan Nama Peserta" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:16px;margin:15px 0">
+<h3 style="color:#1B3A5C;margin-bottom:10px">🎯 Pilih Mode Tes:</h3>
+<button class="mode-btn" style="background:#1B3A5C" onclick="mulaiTes('kognitif')"><strong>🧠 TES POTENSI KOGNITIF</strong><small>Deret, Aritmatika, Logika, Penalaran, Verbal — 60 soal / 90 menit</small></button>
+<button class="mode-btn" style="background:#2E7D32" onclick="mulaiTes('mental')"><strong>🇮🇩 TES MENTAL IDEOLOGI</strong><small>Pancasila, UUD 1945, NKRI, Bela Negara — 60 soal / 60 menit</small></button>
+<button class="mode-btn" style="background:#E65100" onclick="mulaiTes('tkb')"><strong>🏘️ TES MANAJEMEN BIDANG KDKMP</strong><small>Koperasi, Manajemen, Keuangan — 50 soal / 45 menit</small></button>
+<button class="mode-btn" style="background:#C62828" onclick="mulaiTes('full')"><strong>🎯 SIMULASI CAT PENUH</strong><small>Kognitif + Mental + TKB — 110 soal / 120 menit</small></button>
+<div class="rules-box" style="margin-top:15px">
+<h3>⚠️ Tata Tertib:</h3>
+<ul>
+<li>Soal & jawaban diacak setiap sesi</li>
+<li>Navigasi bebas maju/mundur</li>
+<li>Tandai soal ragu dengan 🚩</li>
+<li>Max 3 peringatan pindah tab</li>
+<li>Auto submit saat waktu habis</li>
+</ul>
+</div>
+</div>
 </div>
 
-<!-- TEST SCREEN -->
 <div id="testScreen" style="display:none">
-    <div class="header">
-        <div class="header-left">
-            <div style="font-size:13px;opacity:0.8">Peserta:</div>
-            <div id="namaPeserta" style="font-weight:bold"></div>
-        </div>
-        <div class="header-center">
-            SIMULASI CAT BKN — SPPI KOPERASI MERAH PUTIH
-        </div>
-        <div class="header-right">
-            <div style="font-size:13px;opacity:0.8">Sisa Waktu:</div>
-            <div class="timer" id="timerDisplay">00:00</div>
-        </div>
-    </div>
-
-    <div class="main-content">
-        <div class="question-panel">
-            <div class="question-info">
-                <span>Soal <strong id="nomorSoal">1</strong> dari <strong id="totalSoal">110</strong></span>
-                <span id="kategoriSoal" class="category-badge" style="background:#1B3A5C;color:white;padding:4px 12px;border-radius:12px;font-size:12px">Kategori</span>
-            </div>
-            
-            <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
-            
-            <div class="question-box">
-                <div class="question-text" id="textSoal">Loading...</div>
-            </div>
-
-            <div id="opsiContainer" class="options-container"></div>
-
-            <div class="nav-buttons">
-                <button onclick="soalSebelumnya()" id="btnPrev" class="nav-btn">← Sebelumnya</button>
-                <button onclick="toggleRagu()" id="btnFlag" class="nav-btn flag-btn">🚩 Ragu-ragu</button>
-                <button onclick="hapusJawaban()" class="nav-btn" style="background:#95a5a6;color:white">🗑️ Hapus</button>
-                <button onclick="soalBerikutnya()" id="btnNext" class="nav-btn">Selanjutnya →</button>
-            </div>
-        </div>
-
-        <div class="sidebar">
-            <div class="sidebar-card">
-                <h3 style="text-align:center;color:#1B3A5C;margin-bottom:10px">📋 Navigasi Soal</h3>
-                <div style="font-size:11px;margin-bottom:10px">
-                    <span style="display:inline-block;width:12px;height:12px;background:#27ae60;border-radius:2px;vertical-align:middle"></span> Dijawab
-                    <span style="display:inline-block;width:12px;height:12px;background:#f39c12;border-radius:2px;vertical-align:middle;margin-left:8px"></span> Ragu
-                    <span style="display:inline-block;width:12px;height:12px;background:#ecf0f1;border:1px solid #bdc3c7;border-radius:2px;vertical-align:middle;margin-left:8px"></span> Belum
-                </div>
-                <div id="gridSoal" class="question-grid"></div>
-                <button onclick="konfirmasiSubmit()" style="width:100%;background:#27ae60;color:white;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;margin-top:10px">✅ SELESAI & KIRIM</button>
-            </div>
-        </div>
-    </div>
+<div class="header">
+<div class="header-left"><div style="font-size:12px;opacity:.8">Peserta:</div><div id="namaPeserta" style="font-weight:700"></div></div>
+<div class="header-center">SIMULASI CAT BKN — SPPI KOPERASI MERAH PUTIH</div>
+<div class="header-right"><div style="font-size:12px;opacity:.8">Sisa Waktu:</div><div class="timer" id="timerDisplay">00:00</div></div>
+</div>
+<div class="main-content">
+<div class="question-panel">
+<div class="question-info"><span>Soal <strong id="nomorSoal">1</strong> dari <strong id="totalSoal">0</strong></span><span class="cat-badge" id="catBadge">-</span></div>
+<div class="progress-bar"><div class="progress-fill" id="progBar"></div></div>
+<div class="question-text" id="textSoal"></div>
+<div class="options-container" id="opsiBox"></div>
+<div class="nav-buttons">
+<button class="nav-btn" id="btnPrev" onclick="prev()">← Sebelumnya</button>
+<button class="nav-btn flag-btn" id="btnFlag" onclick="toggleFlag()">🚩 Ragu</button>
+<button class="nav-btn" style="background:#95a5a6" onclick="hapus()">🗑️ Hapus</button>
+<button class="nav-btn" id="btnNext" onclick="next()">Selanjutnya →</button>
+</div>
+</div>
+<div class="sidebar"><div class="sidebar-card">
+<h3 style="text-align:center;color:#1B3A5C;margin-bottom:8px;font-size:14px">📋 Navigasi Soal</h3>
+<div style="font-size:11px;margin-bottom:8px"><span style="display:inline-block;width:12px;height:12px;background:#27ae60;border-radius:2px;vertical-align:middle"></span> Dijawab <span style="display:inline-block;width:12px;height:12px;background:#f39c12;border-radius:2px;vertical-align:middle;margin-left:6px"></span> Ragu <span style="display:inline-block;width:12px;height:12px;background:#ecf0f1;border:1px solid #bdc3c7;border-radius:2px;vertical-align:middle;margin-left:6px"></span> Belum</div>
+<div class="question-grid" id="gridSoal"></div>
+<button onclick="konfirmasi()" style="width:100%;background:#27ae60;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px">✅ SELESAI & KIRIM</button>
+</div></div>
+</div>
 </div>
 
-<!-- WARNING BADGE -->
-<div id="warningBadge" style="position:fixed;top:10px;right:10px;background:#e74c3c;color:white;padding:8px 15px;border-radius:20px;font-size:12px;z-index:9999;display:none">⚠️ Peringatan: <span id="warnCount">0</span>/3</div>
-
-<!-- RESULT SCREEN -->
 <div id="resultScreen" style="display:none">
-    <div class="welcome-screen">
-        <div class="welcome-card" style="max-width:700px">
-            <div id="hasilContent"></div>
-            <div style="display:flex;gap:10px;margin-top:20px">
-                <button onclick="tampilkanReview()" style="flex:1;background:#3498db;color:white;border:none;padding:12px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:bold">📝 Review Jawaban</button>
-                <button onclick="location.reload()" style="flex:1;background:#1B3A5C;color:white;border:none;padding:12px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:bold">🔄 Ulangi Tes</button>
-            </div>
-            <div id="reviewArea" style="margin-top:20px;display:none"></div>
-        </div>
-    </div>
+<div class="welcome-screen">
+<div class="welcome-card" style="max-width:700px">
+<div id="hasilBox"></div>
+<div style="display:flex;gap:10px;margin-top:20px">
+<button onclick="showReview()" style="flex:1;background:#3498db;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:700">📝 Review Jawaban</button>
+<button onclick="location.reload()" style="flex:1;background:#1B3A5C;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:700">🔄 Ulangi Tes</button>
+</div>
+<div id="reviewBox" style="margin-top:20px;display:none"></div>
+</div>
+</div>
 </div>
 
 <script>
@@ -1058,1147 +341,91 @@
             {q: "Kesejahteraan anggota koperasi dicapai melalui?", options: ["Pembagian dividen", "Pelayanan usaha dan SHU", "Bonus tahunan", "Gaji tetap"], answer: 1, exp: "Kesejahteraan anggota dicapai melalui pelayanan usaha yang baik dan pembagian SHU", cat: "TKB - Koperasi"}
         ];
 
-        const materiBelajar = [
-            {
-                id: 'pancasila',
-                title: 'Pancasila',
-                content: `
-                    <h3>Pengertian Pancasila</h3>
-                    <p>Pancasila adalah dasar negara Indonesia yang terdiri dari lima sila. Pancasila disahkan pada 18 Agustus 1945 oleh PPKI.</p>
-                    
-                    <h3>Lima Sila Pancasila</h3>
-                    <ul>
-                        <li><strong>Sila 1:</strong> Ketuhanan Yang Maha Esa (Lambang: Bintang)</li>
-                        <li><strong>Sila 2:</strong> Kemanusiaan yang Adil dan Beradab (Lambang: Rantai)</li>
-                        <li><strong>Sila 3:</strong> Persatuan Indonesia (Lambang: Pohon Beringin)</li>
-                        <li><strong>Sila 4:</strong> Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (Lambang: Kepala Banteng)</li>
-                        <li><strong>Sila 5:</strong> Keadilan Sosial bagi Seluruh Rakyat Indonesia (Lambang: Padi dan Kapas)</li>
-                    </ul>
-                    
-                    <h3>Fungsi Pancasila</h3>
-                    <ul>
-                        <li>Dasar negara Indonesia</li>
-                        <li>Pandangan hidup bangsa</li>
-                        <li>Ideologi nasional</li>
-                        <li>Sumber dari segala sumber hukum</li>
-                    </ul>
-                `
-            },
-            {
-                id: 'uud1945',
-                title: 'UUD 1945',
-                content: `
-                    <h3>Tentang UUD 1945</h3>
-                    <p>UUD 1945 adalah konstitusi negara Indonesia yang disahkan pada 18 Agustus 1945.</p>
-                    
-                    <h3>Struktur UUD 1945</h3>
-                    <ul>
-                        <li>Pembukaan (4 alinea)</li>
-                        <li>Pasal-pasal (37 pasal setelah amandemen)</li>
-                        <li>Aturan Peralihan</li>
-                        <li>Aturan Tambahan</li>
-                    </ul>
-                    
-                    <h3>Amandemen UUD 1945</h3>
-                    <p>UUD 1945 telah diamandemen 4 kali:</p>
-                    <ul>
-                        <li>Amandemen I: 1999</li>
-                        <li>Amandemen II: 2000</li>
-                        <li>Amandemen III: 2001</li>
-                        <li>Amandemen IV: 2002</li>
-                    </ul>
-                    
-                    <h3>Pasal-Pasal Penting</h3>
-                    <ul>
-                        <li><strong>Pasal 1(1):</strong> Negara Indonesia adalah negara kesatuan berbentuk republik</li>
-                        <li><strong>Pasal 1(2):</strong> Kedaulatan berada di tangan rakyat</li>
-                        <li><strong>Pasal 27(3):</strong> Hak dan kewajiban bela negara</li>
-                        <li><strong>Pasal 31:</strong> Hak atas pendidikan</li>
-                        <li><strong>Pasal 33:</strong> Perekonomian nasional</li>
-                    </ul>
-                `
-            },
-            {
-                id: 'nkri',
-                title: 'NKRI',
-                content: `
-                    <h3>Negara Kesatuan Republik Indonesia</h3>
-                    <p>Indonesia adalah negara kesatuan yang berbentuk republik dengan sistem pemerintahan presidensial.</p>
-                    
-                    <h3>Bhinneka Tunggal Ika</h3>
-                    <ul>
-                        <li>Arti: Berbeda-beda tetapi tetap satu</li>
-                        <li>Berasal dari kitab Sutasoma karya Mpu Tantular</li>
-                        <li>Melambangkan persatuan dalam keberagaman</li>
-                    </ul>
-                    
-                    <h3>Wilayah Indonesia</h3>
-                    <ul>
-                        <li>Membentang dari Sabang sampai Merauke</li>
-                        <li>38 provinsi (2024)</li>
-                        <li>Lebih dari 1.300 suku bangsa</li>
-                        <li>Lebih dari 700 bahasa daerah</li>
-                    </ul>
-                    
-                    <h3>Simbol Negara</h3>
-                    <ul>
-                        <li><strong>Bendera:</strong> Merah Putih</li>
-                        <li><strong>Lambang:</strong> Garuda Pancasila</li>
-                        <li><strong>Lagu Kebangsaan:</strong> Indonesia Raya (W.R. Supratman)</li>
-                        <li><strong>Bahasa:</strong> Bahasa Indonesia</li>
-                    </ul>
-                `
-            },
-            {
-                id: 'belanegara',
-                title: 'Bela Negara',
-                content: `
-                    <h3>Pengertian Bela Negara</h3>
-                    <p>Bela negara adalah sikap dan perilaku warga negara yang dijiwai oleh kecintaannya kepada NKRI berdasarkan Pancasila dan UUD 1945.</p>
-                    
-                    <h3>Dasar Hukum</h3>
-                    <ul>
-                        <li>Pasal 27 ayat (3) UUD 1945</li>
-                        <li>Pasal 30 ayat (1) UUD 1945</li>
-                        <li>UU No. 3 Tahun 2002 tentang Pertahanan Negara</li>
-                    </ul>
-                    
-                    <h3>Bentuk Bela Negara</h3>
-                    <ul>
-                        <li>Bagi pelajar: Belajar dengan sungguh-sungguh</li>
-                        <li>Bagi pekerja: Bekerja dengan profesional</li>
-                        <li>Menjaga persatuan dan kesatuan</li>
-                        <li>Melestarikan budaya bangsa</li>
-                        <li>Taat hukum dan peraturan</li>
-                    </ul>
-                    
-                    <h3>Hari-Hari Penting</h3>
-                    <ul>
-                        <li><strong>20 Mei:</strong> Hari Kebangkitan Nasional (Budi Utomo 1908)</li>
-                        <li><strong>28 Oktober:</strong> Hari Sumpah Pemuda (1928)</li>
-                        <li><strong>10 November:</strong> Hari Pahlawan</li>
-                        <li><strong>19 Desember:</strong> Hari Bela Negara</li>
-                    </ul>
-                `
-            },
-            {
-                id: 'integritas',
-                title: 'Integritas & Anti Korupsi',
-                content: `
-                    <h3>Pengertian Integritas</h3>
-                    <p>Integritas adalah keselarasan antara nilai, ucapan, dan perbuatan. Seseorang yang berintegritas adalah orang yang jujur, konsisten, dan dapat dipercaya.</p>
-                    
-                    <h3>Korupsi</h3>
-                    <p>Korupsi adalah tindakan penyalahgunaan wewenang untuk kepentingan pribadi.</p>
-                    
-                    <h3>Lembaga Anti Korupsi</h3>
-                    <ul>
-                        <li><strong>KPK:</strong> Komisi Pemberantasan Korupsi</li>
-                        <li><strong>BPK:</strong> Badan Pemeriksa Keuangan</li>
-                        <li><strong>BPKP:</strong> Badan Pengawasan Keuangan dan Pembangunan</li>
-                    </ul>
-                    
-                    <h3>Prinsip Good Governance</h3>
-                    <ul>
-                        <li>Transparansi (keterbukaan)</li>
-                        <li>Akuntabilitas (pertanggungjawaban)</li>
-                        <li>Responsivitas (daya tanggap)</li>
-                        <li>Efektivitas dan efisiensi</li>
-                        <li>Partisipasi</li>
-                    </ul>
-                    
-                    <h3>Gratifikasi</h3>
-                    <p>Semua gratifikasi yang diterima pejabat publik wajib dilaporkan kepada KPK, apapun nilainya.</p>
-                `
-            },
-            {
-                id: 'koperasi-dasar',
-                title: 'Dasar-Dasar Koperasi',
-                content: `
-                    <h3>Pengertian Koperasi</h3>
-                    <p>Koperasi adalah badan usaha yang beranggotakan orang-seorang atau badan hukum koperasi dengan melandaskan kegiatannya berdasarkan prinsip koperasi sekaligus sebagai gerakan ekonomi rakyat yang berdasar atas asas kekeluargaan.</p>
-                    
-                    <h3>Landasan Koperasi</h3>
-                    <ul>
-                        <li><strong>Landasan Idiil:</strong> Pancasila</li>
-                        <li><strong>Landasan Struktural:</strong> UUD 1945 Pasal 33</li>
-                        <li><strong>Landasan Operasional:</strong> UU No. 25 Tahun 1992</li>
-                    </ul>
-                    
-                    <h3>Asas dan Tujuan</h3>
-                    <ul>
-                        <li><strong>Asas:</strong> Kekeluargaan</li>
-                        <li><strong>Tujuan:</strong> Meningkatkan kesejahteraan anggota dan masyarakat</li>
-                    </ul>
-                    
-                    <h3>Bapak Koperasi</h3>
-                    <p>Mohammad Hatta dikenal sebagai Bapak Koperasi Indonesia. Hari Koperasi diperingati setiap 12 Juli.</p>
-                `
-            },
-            {
-                id: 'prinsip-koperasi',
-                title: 'Prinsip Koperasi',
-                content: `
-                    <h3>7 Prinsip Koperasi (ICA)</h3>
-                    <ul>
-                        <li><strong>1. Keanggotaan Sukarela dan Terbuka</strong><br>Koperasi terbuka bagi semua orang tanpa diskriminasi</li>
-                        <li><strong>2. Pengendalian oleh Anggota secara Demokratis</strong><br>One member one vote - setiap anggota punya hak suara yang sama</li>
-                        <li><strong>3. Partisipasi Ekonomi Anggota</strong><br>Anggota berkontribusi secara adil dan mengontrol modal koperasi</li>
-                        <li><strong>4. Otonomi dan Kemandirian</strong><br>Koperasi adalah organisasi otonom yang dikendalikan anggota</li>
-                        <li><strong>5. Pendidikan, Pelatihan, dan Informasi</strong><br>Koperasi memberikan pendidikan kepada anggota dan masyarakat</li>
-                        <li><strong>6. Kerjasama Antar Koperasi</strong><br>Koperasi bekerja sama untuk memperkuat gerakan koperasi</li>
-                        <li><strong>7. Kepedulian terhadap Komunitas</strong><br>Koperasi bekerja untuk pembangunan berkelanjutan komunitas</li>
-                    </ul>
-                `
-            },
-            {
-                id: 'organisasi-koperasi',
-                title: 'Organisasi Koperasi',
-                content: `
-                    <h3>Struktur Organisasi Koperasi</h3>
-                    
-                    <h4>1. Rapat Anggota</h4>
-                    <ul>
-                        <li>Pemegang kekuasaan tertinggi</li>
-                        <li>Memilih dan memberhentikan pengurus dan pengawas</li>
-                        <li>Menetapkan kebijakan umum</li>
-                        <li>Mengesahkan pertanggungjawaban pengurus</li>
-                    </ul>
-                    
-                    <h4>2. Pengurus</h4>
-                    <ul>
-                        <li>Mengelola koperasi sehari-hari</li>
-                        <li>Mengajukan rancangan program kerja dan RAPB</li>
-                        <li>Menyelenggarakan Rapat Anggota</li>
-                        <li>Masa jabatan: 5 tahun</li>
-                    </ul>
-                    
-                    <h4>3. Pengawas</h4>
-                    <ul>
-                        <li>Melakukan pengawasan terhadap pelaksanaan kebijakan</li>
-                        <li>Membuat laporan tertulis tentang hasil pengawasan</li>
-                        <li>Meneliti catatan dan fisik kekayaan koperasi</li>
-                    </ul>
-                `
-            },
-            {
-                id: 'modal-koperasi',
-                title: 'Modal Koperasi',
-                content: `
-                    <h3>Sumber Modal Koperasi</h3>
-                    
-                    <h4>Modal Sendiri</h4>
-                    <ul>
-                        <li><strong>Simpanan Pokok:</strong> Dibayar sekali saat menjadi anggota, tidak dapat diambil selama masih menjadi anggota</li>
-                        <li><strong>Simpanan Wajib:</strong> Dibayar secara rutin (biasanya bulanan), dapat diambil saat keluar dari keanggotaan</li>
-                        <li><strong>Simpanan Sukarela:</strong> Bersifat tidak mengikat, dapat diambil sewaktu-waktu</li>
-                        <li><strong>Dana Cadangan:</strong> Berasal dari penyisihan SHU</li>
-                        <li><strong>Hibah:</strong> Pemberian dari pihak lain</li>
-                    </ul>
-                    
-                    <h4>Modal Pinjaman</h4>
-                    <ul>
-                        <li>Pinjaman dari anggota</li>
-                        <li>Pinjaman dari koperasi lain</li>
-                        <li>Pinjaman dari bank</li>
-                        <li>Obligasi atau surat hutang lainnya</li>
-                    </ul>
-                    
-                    <h3>Tanggung Jawab Anggota</h3>
-                    <p>Tanggung jawab anggota koperasi terbatas pada simpanan yang telah disetor.</p>
-                `
-            },
-            {
-                id: 'shu',
-                title: 'Sisa Hasil Usaha (SHU)',
-                content: `
-                    <h3>Pengertian SHU</h3>
-                    <p>SHU adalah pendapatan koperasi yang diperoleh dalam satu tahun buku dikurangi dengan biaya, penyusutan, dan kewajiban lainnya termasuk pajak.</p>
-                    
-                    <h3>Pembagian SHU</h3>
-                    <p>SHU dibagi berdasarkan:</p>
-                    <ul>
-                        <li>Besarnya simpanan anggota</li>
-                        <li>Besarnya partisipasi usaha (transaksi) anggota</li>
-                    </ul>
-                    
-                    <h3>Alokasi SHU</h3>
-                    <ul>
-                        <li>Dana Cadangan</li>
-                        <li>Jasa Anggota (simpanan dan transaksi)</li>
-                        <li>Dana Pengurus</li>
-                        <li>Dana Karyawan</li>
-                        <li>Dana Pendidikan</li>
-                        <li>Dana Sosial</li>
-                        <li>Dana Pembangunan Daerah Kerja</li>
-                    </ul>
-                    
-                    <h3>Perbedaan SHU dengan Laba</h3>
-                    <ul>
-                        <li>SHU dibagi berdasarkan partisipasi, laba dibagi berdasarkan modal</li>
-                        <li>SHU untuk kesejahteraan anggota, laba untuk pemilik modal</li>
-                    </ul>
-                `
-            },
-            {
-                id: 'jenis-koperasi',
-                title: 'Jenis-Jenis Koperasi',
-                content: `
-                    <h3>Berdasarkan Jenis Usaha</h3>
-                    
-                    <h4>1. Koperasi Konsumen</h4>
-                    <ul>
-                        <li>Menyediakan barang kebutuhan anggota</li>
-                        <li>Contoh: Koperasi toko, koperasi warung</li>
-                    </ul>
-                    
-                    <h4>2. Koperasi Produsen</h4>
-                    <ul>
-                        <li>Anggotanya para produsen</li>
-                        <li>Contoh: Koperasi susu, koperasi kerajinan</li>
-                    </ul>
-                    
-                    <h4>3. Koperasi Simpan Pinjam (KSP)</h4>
-                    <ul>
-                        <li>Kegiatan utama: simpan pinjam</li>
-                        <li>Memberikan pinjaman dengan bunga rendah</li>
-                    </ul>
-                    
-                    <h4>4. Koperasi Jasa</h4>
-                    <ul>
-                        <li>Memberikan pelayanan jasa</li>
-                        <li>Contoh: Koperasi angkutan, koperasi asuransi</li>
-                    </ul>
-                    
-                    <h4>5. Koperasi Serba Usaha (KSU)</h4>
-                    <ul>
-                        <li>Menjalankan berbagai jenis usaha</li>
-                        <li>Contoh: KUD (Koperasi Unit Desa)</li>
-                    </ul>
-                    
-                    <h3>Berdasarkan Tingkatan</h3>
-                    <ul>
-                        <li><strong>Koperasi Primer:</strong> Beranggotakan minimal 20 orang</li>
-                        <li><strong>Koperasi Sekunder:</strong> Beranggotakan badan hukum koperasi (Pusat, Gabungan, Induk)</li>
-                    </ul>
-                `
-            },
-            {
-                id: 'pendirian-koperasi',
-                title: 'Pendirian Koperasi',
-                content: `
-                    <h3>Syarat Pendirian Koperasi Primer</h3>
-                    <ul>
-                        <li>Minimal 20 orang pendiri</li>
-                        <li>Membuat Akta Pendirian</li>
-                        <li>Menyusun Anggaran Dasar dan Anggaran Rumah Tangga (AD/ART)</li>
-                        <li>Mengajukan pengesahan ke Kementerian Koperasi</li>
-                    </ul>
-                    
-                    <h3>Badan Hukum</h3>
-                    <p>Koperasi memperoleh status badan hukum setelah akta pendiriannya disahkan oleh pemerintah.</p>
-                    
-                    <h3>Isi AD/ART</h3>
-                    <ul>
-                        <li>Nama dan tempat kedudukan</li>
-                        <li>Landasan, asas, dan tujuan</li>
-                        <li>Kegiatan usaha</li>
-                        <li>Keanggotaan</li>
-                        <li>Rapat Anggota</li>
-                        <li>Pengelolaan (Pengurus dan Pengawas)</li>
-                        <li>Permodalan</li>
-                        <li>Pembagian SHU</li>
-                        <li>Pembubaran</li>
-                    </ul>
-                `
-            },
-            {
-                id: 'koperasi-indonesia',
-                title: 'Koperasi di Indonesia',
-                content: `
-                    <h3>Sejarah Koperasi Indonesia</h3>
-                    <ul>
-                        <li><strong>1896:</strong> R. Aria Wiriatmadja mendirikan koperasi pertama di Purwokerto</li>
-                        <li><strong>1908:</strong> Budi Utomo mendorong gerakan koperasi</li>
-                        <li><strong>1927:</strong> Pembentukan Serikat Dagang Islam</li>
-                        <li><strong>12 Juli 1947:</strong> Kongres Koperasi pertama di Tasikmalaya</li>
-                        <li><strong>1992:</strong> UU No. 25 Tahun 1992 tentang Perkoperasian</li>
-                    </ul>
-                    
-                    <h3>Peran Koperasi</h3>
-                    <ul>
-                        <li>Meningkatkan kesejahteraan anggota dan masyarakat</li>
-                        <li>Memperkuat ekonomi rakyat</li>
-                        <li>Mendukung UMKM</li>
-                        <li>Pemerataan pendapatan</li>
-                        <li>Menciptakan lapangan kerja</li>
-                    </ul>
-                    
-                    <h3>Koperasi Merah Putih</h3>
-                    <p>Program Strategis Nasional untuk mengembangkan koperasi sebagai pilar ekonomi kerakyatan, dengan fokus pada:</p>
-                    <ul>
-                        <li>Pendampingan koperasi desa</li>
-                        <li>Peningkatan kapasitas SDM koperasi</li>
-                        <li>Akses permodalan</li>
-                        <li>Digitalisasi koperasi</li>
-                        <li>Kemitraan dengan BUMN dan swasta</li>
-                    </ul>
-                `
-            },
-            {
-                id: 'tips-iq',
-                title: 'Tips Mengerjakan Soal IQ',
-                content: `
-                    <h3>Deret Angka</h3>
-                    <ul>
-                        <li>Cari pola: aritmatika (+/-), geometri (×/÷), kuadrat, prima, fibonacci</li>
-                        <li>Perhatikan selisih antar angka</li>
-                        <li>Jika bingung, coba hitung mundur dari pilihan jawaban</li>
-                    </ul>
-                    
-                    <h3>Analogi Verbal</h3>
-                    <ul>
-                        <li>Cari hubungan: sinonim, antonim, sebab-akibat, bagian-keseluruhan</li>
-                        <li>Perhatikan fungsi, tempat, atau karakteristik</li>
-                    </ul>
-                    
-                    <h3>Logika & Silogisme</h3>
-                    <ul>
-                        <li>Baca premis dengan teliti</li>
-                        <li>Hati-hati dengan kata "semua", "sebagian", "tidak ada"</li>
-                        <li>Jangan terpengaruh pengetahuan umum, fokus pada premis</li>
-                    </ul>
-                    
-                    <h3>Aritmatika</h3>
-                    <ul>
-                        <li>Baca soal dengan teliti, catat yang diketahui dan ditanya</li>
-                        <li>Gunakan rumus yang tepat</li>
-                        <li>Cek kembali satuan (%, Rp, cm, dll)</li>
-                    </ul>
-                    
-                    <h3>Strategi Umum</h3>
-                    <ul>
-                        <li>Kerjakan yang mudah dulu</li>
-                        <li>Jangan terlalu lama di satu soal (max 90 detik)</li>
-                        <li>Gunakan teknik eliminasi jawaban</li>
-                        <li>Tandai soal yang ragu untuk ditinjau ulang</li>
-                    </ul>
-                `
-            },
-            {
-                id: 'tips-cat',
-                title: 'Tips Menghadapi CAT',
-                content: `
-                    <h3>Persiapan Sebelum Tes</h3>
-                    <ul>
-                        <li>Tidur cukup (minimal 7 jam)</li>
-                        <li>Sarapan bergizi</li>
-                        <li>Datang 30 menit lebih awal</li>
-                        <li>Bawa dokumen lengkap</li>
-                        <li>Pastikan kondisi fisik dan mental prima</li>
-                    </ul>
-                    
-                    <h3>Saat Mengerjakan</h3>
-                    <ul>
-                        <li><strong>Manajemen Waktu:</strong> Rata-rata 36-60 detik per soal</li>
-                        <li><strong>Prioritas:</strong> Kerjakan yang mudah dulu, skip yang sulit</li>
-                        <li><strong>Fokus:</strong> Jangan panik jika ada soal sulit</li>
-                        <li><strong>Teliti:</strong> Baca soal dan pilihan dengan cermat</li>
-                        <li><strong>Jangan Kosong:</strong> Lebih baik menebak daripada tidak dijawab</li>
-                    </ul>
-                    
-                    <h3>Khusus TKP (Tes Karakteristik Pribadi)</h3>
-                    <ul>
-                        <li>Tidak ada jawaban salah, tapi ada skor 1-5</li>
-                        <li>Pilih jawaban yang paling ideal (skor 5)</li>
-                        <li>Hindari jawaban ekstrem negatif</li>
-                        <li>Konsisten dengan nilai-nilai ASN/BUMN</li>
-                        <li>Tunjukkan sikap proaktif, bertanggung jawab, dan berintegritas</li>
-                    </ul>
-                    
-                    <h3>Mental & Psikologis</h3>
-                    <ul>
-                        <li>Tetap tenang dan percaya diri</li>
-                        <li>Jangan terpengaruh peserta lain</li>
-                        <li>Ambil napas dalam jika mulai panik</li>
-                        <li>Fokus pada soal, bukan pada hasil</li>
-                        <li>Berdoa sesuai keyakinan masing-masing</li>
-                    </ul>
-                `
-            }
-        ];
+let Q=[],ci=0,ans={},flags={},tInt,tLeft=0,nama='',wc=0,done=false;
+const TM={kognitif:5400,mental:3600,tkb:2700,full:7200};
+const QN={kognitif:60,mental:60,tkb:50,full:110};
 
-        // Global Variables
-        let currentSession = '';
-        let participantName = '';
-        let questions = [];
-        let currentQuestionIndex = 0;
-        let userAnswers = [];
-        let flaggedQuestions = [];
-        let timeLimit = 0;
-        let timeRemaining = 0;
-        let timerInterval = null;
-        let questionTimerInterval = null;
-        let questionTimeRemaining = 60;
-        let visibilityWarnings = 0;
-        const MAX_WARNINGS = 3;
-        
-        // Utility Functions
-        function shuffle(array) {
-            const arr = [...array];
-            for (let i = arr.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [arr[i], arr[j]] = [arr[j], arr[i]];
-            }
-            return arr;
-        }
-        
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-            
-            if (screenId === 'testScreen') {
-                document.getElementById('header').style.display = 'flex';
-                document.getElementById('questionTimerBar').style.display = 'block';
-            } else {
-                document.getElementById('header').style.display = 'none';
-                document.getElementById('questionTimerBar').style.display = 'none';
-            }
-        }
-        
-        function selectSession(mode) {
-            const nameInput = document.getElementById('nameInput').value.trim();
-            if (!nameInput) {
-                alert('Mohon masukkan nama lengkap Anda terlebih dahulu!');
-                document.getElementById('nameInput').focus();
-                return;
-            }
-            
-            participantName = nameInput;
-            currentSession = mode;
-            initTest(mode);
-        }
-        
-        function initTest(mode) {
-            // Prepare questions based on mode
-            let selectedQuestions = [];
-            
-            if (mode === 'TKD') {
-                // 45 IQ + 45 MI = 90 questions, 90 minutes
-                const shuffledIQ = shuffle(soalIQ).slice(0, 45);
-                const shuffledMI = shuffle(soalMI).slice(0, 45);
-                selectedQuestions = [...shuffledIQ, ...shuffledMI];
-                timeLimit = 90 * 60; // 90 minutes
-                document.getElementById('headerCenter').textContent = 'Sesi TKD';
-            } else if (mode === 'TKB') {
-                // 20 questions from 50, 30 minutes
-                selectedQuestions = shuffle(soalTKB).slice(0, 20);
-                timeLimit = 30 * 60; // 30 minutes
-                document.getElementById('headerCenter').textContent = 'Sesi TKB';
-            } else if (mode === 'FULL') {
-                // All TKD + 20 TKB = 110 questions, 120 minutes
-                const shuffledIQ = shuffle(soalIQ).slice(0, 45);
-                const shuffledMI = shuffle(soalMI).slice(0, 45);
-                const shuffledTKB = shuffle(soalTKB).slice(0, 20);
-                selectedQuestions = [...shuffledIQ, ...shuffledMI, ...shuffledTKB];
-                timeLimit = 120 * 60; // 120 minutes
-                document.getElementById('headerCenter').textContent = 'Sesi Lengkap (TKD + TKB)';
-            }
-            
-            // Shuffle questions and options
-            questions = shuffle(selectedQuestions).map(q => {
-                const shuffledOptions = [];
-                const optionIndices = [0, 1, 2, 3];
-                const shuffledIndices = shuffle(optionIndices);
-                
-                shuffledIndices.forEach(idx => {
-                    shuffledOptions.push(q.options[idx]);
-                });
-                
-                const newAnswerIndex = shuffledIndices.indexOf(q.answer);
-                
-                return {
-                    ...q,
-                    options: shuffledOptions,
-                    answer: newAnswerIndex
-                };
-            });
-            
-            // Initialize user answers and flags
-            userAnswers = new Array(questions.length).fill(null);
-            flaggedQuestions = new Array(questions.length).fill(false);
-            
-            // Set participant name
-            document.getElementById('participantName').textContent = participantName;
-            
-            // Start test
-            timeRemaining = timeLimit;
-            currentQuestionIndex = 0;
-            
-            // Try to enter fullscreen
-            try {
-                document.documentElement.requestFullscreen().catch(() => {});
-            } catch (e) {}
-            
-            // Setup visibility change detection
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-            
-            // Show test screen
-            showScreen('testScreen');
-            buildNavigationGrid();
-            loadQuestion(0);
-            startTimer();
-            startQuestionTimer();
-        }
-        
-        function handleVisibilityChange() {
-            if (document.hidden && currentSession) {
-                visibilityWarnings++;
-                const warningBanner = document.getElementById('warningBanner');
-                const warningText = document.getElementById('warningText');
-                
-                if (visibilityWarnings >= MAX_WARNINGS) {
-                    warningText.textContent = `Anda telah keluar dari tab/window sebanyak ${visibilityWarnings} kali. Ujian akan otomatis disubmit!`;
-                    warningBanner.classList.add('active');
-                    setTimeout(() => {
-                        submitTest();
-                    }, 3000);
-                } else {
-                    warningText.textContent = `Peringatan ${visibilityWarnings}/${MAX_WARNINGS}: Jangan keluar dari tab/window ujian!`;
-                    warningBanner.classList.add('active');
-                    setTimeout(() => {
-                        warningBanner.classList.remove('active');
-                    }, 5000);
-                }
-            }
-        }
-        
-        function startTimer() {
-            const timerElement = document.getElementById('timer');
-            
-            timerInterval = setInterval(() => {
-                timeRemaining--;
-                
-                const hours = Math.floor(timeRemaining / 3600);
-                const minutes = Math.floor((timeRemaining % 3600) / 60);
-                const seconds = timeRemaining % 60;
-                
-                timerElement.textContent = 
-                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                
-                // Warning when less than 5 minutes
-                if (timeRemaining <= 300) {
-                    timerElement.classList.add('warning');
-                }
-                
-                // Auto submit when time's up
-                if (timeRemaining <= 0) {
-                    clearInterval(timerInterval);
-                    alert('Waktu habis! Ujian akan otomatis disubmit.');
-                    submitTest();
-                }
-            }, 1000);
-        }
-        
-        function startQuestionTimer() {
-            questionTimeRemaining = 60;
-            const fillElement = document.getElementById('questionTimerFill');
-            
-            if (questionTimerInterval) {
-                clearInterval(questionTimerInterval);
-            }
-            
-            questionTimerInterval = setInterval(() => {
-                questionTimeRemaining--;
-                const percentage = (questionTimeRemaining / 60) * 100;
-                fillElement.style.width = percentage + '%';
-                
-                if (questionTimeRemaining <= 0) {
-                    clearInterval(questionTimerInterval);
-                }
-            }, 1000);
-        }
-        
-        function buildNavigationGrid() {
-            const navGrid = document.getElementById('navGrid');
-            navGrid.innerHTML = '';
-            
-            questions.forEach((_, index) => {
-                const btn = document.createElement('button');
-                btn.className = 'nav-btn';
-                btn.textContent = index + 1;
-                btn.onclick = () => loadQuestion(index);
-                navGrid.appendChild(btn);
-            });
-            
-            updateNavigationGrid();
-        }
-        
-        function updateNavigationGrid() {
-            const buttons = document.querySelectorAll('.nav-btn');
-            buttons.forEach((btn, index) => {
-                btn.classList.remove('answered', 'flagged', 'current');
-                
-                if (index === currentQuestionIndex) {
-                    btn.classList.add('current');
-                }
-                if (userAnswers[index] !== null) {
-                    btn.classList.add('answered');
-                }
-                if (flaggedQuestions[index]) {
-                    btn.classList.add('flagged');
-                }
-            });
-        }
-        
-        function loadQuestion(index) {
-            currentQuestionIndex = index;
-            const question = questions[index];
-            
-            document.getElementById('questionNumber').textContent = 
-                `Soal ${index + 1} dari ${questions.length}`;
-            document.getElementById('questionText').textContent = question.q;
-            
-            const optionsContainer = document.getElementById('optionsContainer');
-            optionsContainer.innerHTML = '';
-            
-            question.options.forEach((option, optIndex) => {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'option';
-                if (userAnswers[index] === optIndex) {
-                    optionDiv.classList.add('selected');
-                }
-                
-                optionDiv.innerHTML = `
-                    <span class="option-label">${String.fromCharCode(65 + optIndex)}.</span>
-                    <span>${option}</span>
-                `;
-                
-                optionDiv.onclick = () => selectAnswer(optIndex);
-                optionsContainer.appendChild(optionDiv);
-            });
-            
-            // Update flag button
-            const flagText = document.getElementById('flagText');
-            flagText.textContent = flaggedQuestions[index] ? 'Batal Ragu' : 'Ragu-ragu';
-            
-            updateNavigationGrid();
-            startQuestionTimer();
-        }
-        
-        function selectAnswer(optionIndex) {
-            userAnswers[currentQuestionIndex] = optionIndex;
-            
-            // Update UI
-            document.querySelectorAll('.option').forEach((opt, idx) => {
-                opt.classList.toggle('selected', idx === optionIndex);
-            });
-            
-            updateNavigationGrid();
-        }
-        
-        function navQuestion(direction) {
-            let newIndex = currentQuestionIndex + direction;
-            if (newIndex < 0) newIndex = 0;
-            if (newIndex >= questions.length) newIndex = questions.length - 1;
-            loadQuestion(newIndex);
-        }
-        
-        function toggleFlag() {
-            flaggedQuestions[currentQuestionIndex] = !flaggedQuestions[currentQuestionIndex];
-            const flagText = document.getElementById('flagText');
-            flagText.textContent = flaggedQuestions[currentQuestionIndex] ? 'Batal Ragu' : 'Ragu-ragu';
-            updateNavigationGrid();
-        }
-        
-        function clearAnswer() {
-            userAnswers[currentQuestionIndex] = null;
-            document.querySelectorAll('.option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            updateNavigationGrid();
-        }
-        
-        function showSubmitModal() {
-            const answered = userAnswers.filter(a => a !== null).length;
-            const unanswered = questions.length - answered;
-            const flagged = flaggedQuestions.filter(f => f).length;
-            
-            document.getElementById('submitStats').innerHTML = `
-                <p><strong>Total Soal:</strong> ${questions.length}</p>
-                <p><strong>Terjawab:</strong> ${answered}</p>
-                <p><strong>Belum Dijawab:</strong> ${unanswered}</p>
-                <p><strong>Ditandai Ragu:</strong> ${flagged}</p>
-            `;
-            
-            document.getElementById('submitModal').classList.add('active');
-        }
-        
-        function closeSubmitModal() {
-            document.getElementById('submitModal').classList.remove('active');
-        }
-        
-        function submitTest() {
-            clearInterval(timerInterval);
-            clearInterval(questionTimerInterval);
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            closeSubmitModal();
-            
-            // Calculate results
-            let correct = 0;
-            let wrong = 0;
-            let unanswered = 0;
-            const categoryScores = {};
-            
-            questions.forEach((q, index) => {
-                const userAnswer = userAnswers[index];
-                const category = q.cat;
-                
-                if (!categoryScores[category]) {
-                    categoryScores[category] = { correct: 0, total: 0 };
-                }
-                categoryScores[category].total++;
-                
-                if (userAnswer === null) {
-                    unanswered++;
-                } else if (userAnswer === q.answer) {
-                    correct++;
-                    categoryScores[category].correct++;
-                } else {
-                    wrong++;
-                }
-            });
-            
-            const score = Math.round((correct / questions.length) * 100);
-            const passed = score >= 65;
-            
-            // Display results
-            document.getElementById('scoreValue').textContent = score;
-            document.getElementById('correctCount').textContent = correct;
-            document.getElementById('wrongCount').textContent = wrong;
-            document.getElementById('unansweredCount').textContent = unanswered;
-            
-            const scoreCircle = document.getElementById('scoreCircle');
-            const resultStatus = document.getElementById('resultStatus');
-            
-            if (passed) {
-                scoreCircle.classList.add('pass');
-                scoreCircle.classList.remove('fail');
-                resultStatus.classList.add('pass');
-                resultStatus.classList.remove('fail');
-                resultStatus.textContent = '✅ LULUS';
-            } else {
-                scoreCircle.classList.add('fail');
-                scoreCircle.classList.remove('pass');
-                resultStatus.classList.add('fail');
-                resultStatus.classList.remove('pass');
-                resultStatus.textContent = '❌ TIDAK LULUS';
-            }
-            
-            // Category breakdown
-            const breakdownContainer = document.getElementById('categoryBreakdown');
-            breakdownContainer.innerHTML = '<h3>Breakdown per Kategori</h3>';
-            
-            Object.keys(categoryScores).sort().forEach(cat => {
-                const data = categoryScores[cat];
-                const catScore = Math.round((data.correct / data.total) * 100);
-                
-                const item = document.createElement('div');
-                item.className = 'category-item';
-                item.innerHTML = `
-                    <span class="category-name">${cat}</span>
-                    <span class="category-score">${data.correct}/${data.total} (${catScore}%)</span>
-                `;
-                breakdownContainer.appendChild(item);
-            });
-            
-            showScreen('resultScreen');
-        }
-        
-        function showResultScreen() {
-            showScreen('resultScreen');
-        }
-        
-        function showReviewScreen() {
-            const reviewContainer = document.getElementById('reviewContainer');
-            reviewContainer.innerHTML = '';
-            
-            questions.forEach((q, index) => {
-                const userAnswer = userAnswers[index];
-                const isCorrect = userAnswer === q.answer;
-                
-                const reviewItem = document.createElement('div');
-                reviewItem.className = 'review-item';
-                
-                let optionsHTML = '';
-                q.options.forEach((opt, optIdx) => {
-                    let optClass = 'review-option';
-                    if (optIdx === q.answer) {
-                        optClass += ' correct-answer';
-                    }
-                    if (userAnswer === optIdx && !isCorrect) {
-                        optClass += ' wrong-answer';
-                    }
-                    if (userAnswer === optIdx && isCorrect) {
-                        optClass += ' user-answer';
-                    }
-                    
-                    optionsHTML += `
-                        <div class="${optClass}">
-                            ${String.fromCharCode(65 + optIdx)}. ${opt}
-                            ${optIdx === q.answer ? ' ✓ (Jawaban Benar)' : ''}
-                            ${userAnswer === optIdx && !isCorrect ? ' ✗ (Jawaban Anda)' : ''}
-                        </div>
-                    `;
-                });
-                
-                reviewItem.innerHTML = `
-                    <div class="review-header">
-                        <div class="review-number">Soal ${index + 1} - ${q.cat}</div>
-                        <div class="review-status ${isCorrect ? 'correct' : 'wrong'}">
-                            ${isCorrect ? '✓ Benar' : '✗ Salah'}
-                        </div>
-                    </div>
-                    <div class="review-question">${q.q}</div>
-                    <div class="review-options">${optionsHTML}</div>
-                    <div class="review-explanation">
-                        <strong>💡 Pembahasan:</strong>
-                        ${q.exp}
-                    </div>
-                `;
-                
-                reviewContainer.appendChild(reviewItem);
-            });
-            
-            showScreen('reviewScreen');
-        }
-        
-        function showLearnScreen() {
-            const topicsContainer = document.getElementById('learnTopics');
-            topicsContainer.innerHTML = '';
-            
-            materiBelajar.forEach(materi => {
-                const btn = document.createElement('button');
-                btn.className = 'topic-btn';
-                btn.textContent = materi.title;
-                btn.onclick = () => loadLearnContent(materi.id);
-                topicsContainer.appendChild(btn);
-            });
-            
-            showScreen('learnScreen');
-        }
-        
-        function loadLearnContent(materiId) {
-            const materi = materiBelajar.find(m => m.id === materiId);
-            if (materi) {
-                document.getElementById('learnContent').innerHTML = `
-                    <h2>${materi.title}</h2>
-                    ${materi.content}
-                `;
-            }
-        }
-    </script>
-</body>
+function shuf(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
 
-// ==================== VARIABLES ====================
-let soalAktif = [], indexSoal = 0, jawaban = {}, ragu = {};
-let timerInterval, sisaWaktu = 0, namaPeserta = '', warningCount = 0, tesSelesai = false;
-
-const WAKTU = {kognitif:90*60, mental:60*60, tkb:45*60, full:120*60};
-const JUMLAH = {kognitif:60, mental:60, tkb:50, full:110};
-
-function shuffle(arr) {
-    const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a;
+function mulaiTes(mode){
+    nama=document.getElementById('inputNama').value.trim();
+    if(!nama){alert('Masukkan nama!');return;}
+    if(!confirm('Mulai tes?'))return;
+    document.getElementById('namaPeserta').textContent=nama;
+    let pool=[];
+    if(mode==='kognitif'||mode==='full')pool=pool.concat(soalIQ);
+    if(mode==='mental'||mode==='full')pool=pool.concat(soalMental);
+    if(mode==='tkb'||mode==='full')pool=pool.concat(koperasi);
+    const mx=Math.min(QN[mode],pool.length);
+    Q=shuf(pool).slice(0,mx).map(q=>{const c=q.options[q.answer];const o=shuf([...q.options]);return{...q,options:o,answer:o.indexOf(c)};});
+    tLeft=TM[mode];ans={};flags={};ci=0;done=false;
+    document.getElementById('totalSoal').textContent=Q.length;
+    document.getElementById('welcomeScreen').style.display='none';
+    document.getElementById('testScreen').style.display='block';
+    mkGrid();show(0);startT();
+    document.addEventListener('visibilitychange',()=>{if(document.hidden&&!done)warn();});
+    if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(()=>{});
 }
 
-// ==================== MULAI TES ====================
-function mulaiTes(mode) {
-    const nama = document.getElementById('inputNama').value.trim();
-    if (!nama) { alert('Masukkan nama peserta!'); return; }
-    if (!confirm('Siap memulai tes? Waktu akan berjalan.')) return;
-    
-    namaPeserta = nama;
-    document.getElementById('namaPeserta').textContent = nama;
-    
-    let pool = [];
-    if (mode==='kognitif'||mode==='full') pool = pool.concat(soalIQ);
-    if (mode==='mental'||mode==='full') pool = pool.concat(soalMental);
-    if (mode==='tkb'||mode==='full') pool = pool.concat(koperasi);
-    
-    const max = Math.min(JUMLAH[mode], pool.length);
-    soalAktif = shuffle(pool).slice(0, max).map(q => {
-        const benar = q.options[q.answer];
-        const opts = shuffle([...q.options]);
-        return {...q, options:opts, answer:opts.indexOf(benar)};
-    });
-    
-    sisaWaktu = WAKTU[mode];
-    jawaban = {}; ragu = {}; indexSoal = 0; tesSelesai = false;
-    
-    document.getElementById('totalSoal').textContent = soalAktif.length;
-    document.getElementById('welcomeScreen').style.display = 'none';
-    document.getElementById('testScreen').style.display = 'block';
-    
-    buatGrid();
-    tampilSoal(0);
-    mulaiTimer();
-    setupAntiCheat();
-    
-    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+function startT(){tInt=setInterval(()=>{tLeft--;const el=document.getElementById('timerDisplay');el.textContent=`${String(Math.floor(tLeft/60)).padStart(2,'0')}:${String(tLeft%60).padStart(2,'0')}`;if(tLeft<=300)el.classList.add('warning');if(tLeft<=0){clearInterval(tInt);alert('⏰ Waktu habis!');submit();}},1000);}
+
+function warn(){wc++;document.getElementById('warnCount').textContent=wc;const el=document.getElementById('warnBadge');el.style.display='block';setTimeout(()=>el.style.display='none',3000);if(wc>=3){alert('⚠️ 3 peringatan!');submit();}}
+
+function mkGrid(){const g=document.getElementById('gridSoal');g.innerHTML='';Q.forEach((_,i)=>{const b=document.createElement('button');b.className='grid-btn';b.textContent=i+1;b.onclick=()=>show(i);b.id='g'+i;g.appendChild(b);});}
+
+function show(i){
+    ci=i;const q=Q[i];
+    document.getElementById('nomorSoal').textContent=i+1;
+    document.getElementById('textSoal').textContent=q.q;
+    document.getElementById('catBadge').textContent=q.cat||'';
+    document.getElementById('progBar').style.width=((i+1)/Q.length*100)+'%';
+    const box=document.getElementById('opsiBox');box.innerHTML='';
+    q.options.forEach((o,j)=>{const d=document.createElement('div');d.className='option'+(ans[i]===j?' selected':'');d.innerHTML=`<span class="option-letter">${String.fromCharCode(65+j)}</span><span>${o}</span>`;d.onclick=()=>{ans[ci]=j;show(ci);};box.appendChild(d);});
+    document.getElementById('btnPrev').disabled=i===0;
+    document.getElementById('btnNext').textContent=i===Q.length-1?'Selesai →':'Selanjutnya →';
+    document.getElementById('btnFlag').classList.toggle('active',!!flags[i]);
+    updGrid();
 }
 
-// ==================== TIMER ====================
-function mulaiTimer() {
-    timerInterval = setInterval(() => {
-        sisaWaktu--;
-        const m = Math.floor(sisaWaktu/60), s = sisaWaktu%60;
-        const el = document.getElementById('timerDisplay');
-        el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-        if (sisaWaktu <= 300) el.classList.add('warning');
-        if (sisaWaktu <= 0) { clearInterval(timerInterval); alert('⏰ Waktu habis!'); submitTes(); }
-    }, 1000);
+function hapus(){delete ans[ci];show(ci);}
+function next(){if(ci<Q.length-1)show(ci+1);}
+function prev(){if(ci>0)show(ci-1);}
+function toggleFlag(){flags[ci]=!flags[ci];show(ci);}
+function updGrid(){Q.forEach((_,i)=>{const b=document.getElementById('g'+i);b.className='grid-btn';if(ans[i]!==undefined)b.classList.add('answered');if(flags[i])b.classList.add('flagged');if(i===ci)b.classList.add('current');});}
+
+function konfirmasi(){const d=Object.keys(ans).length;if(confirm(`Dijawab: ${d}\nBelum: ${Q.length-d}\n\nKirim?`))submit();}
+
+function submit(){
+    done=true;clearInterval(tInt);if(document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+    let b=0,s=0,k=0;Q.forEach((q,i)=>{if(ans[i]===undefined)k++;else if(ans[i]===q.answer)b++;else s++;});
+    const sc=Math.round(b/Q.length*100),lu=sc>=65;
+    document.getElementById('testScreen').style.display='none';
+    document.getElementById('resultScreen').style.display='block';
+    document.getElementById('hasilBox').innerHTML=`
+    <h1 style="color:#1B3A5C;text-align:center">📊 Hasil Simulasi CAT</h1>
+    <div style="text-align:center;font-size:64px;font-weight:700;color:#1B3A5C;margin:15px 0">${sc}</div>
+    <div style="text-align:center;font-size:22px;font-weight:700;color:${lu?'#27ae60':'#e74c3c'};margin-bottom:20px">${lu?'✅ LULUS':'❌ TIDAK LULUS'}</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0">
+    <div style="background:#d4edda;padding:15px;border-radius:8px;text-align:center"><div style="font-size:26px;font-weight:700;color:#27ae60">${b}</div><div style="font-size:12px;color:#666">✅ Benar</div></div>
+    <div style="background:#f8d7da;padding:15px;border-radius:8px;text-align:center"><div style="font-size:26px;font-weight:700;color:#e74c3c">${s}</div><div style="font-size:12px;color:#666">❌ Salah</div></div>
+    <div style="background:#f5f5f5;padding:15px;border-radius:8px;text-align:center"><div style="font-size:26px;font-weight:700;color:#95a5a6">${k}</div><div style="font-size:12px;color:#666">➖ Kosong</div></div>
+    </div>
+    <div style="background:#f8f9fa;padding:15px;border-radius:8px;font-size:14px">
+    <p>👤 <b>Nama:</b> ${nama}</p><p>📝 <b>Total:</b> ${Q.length} soal</p><p>🎯 <b>Passing Grade:</b> 65</p><p>📅 <b>Tanggal:</b> ${new Date().toLocaleString('id-ID')}</p></div>`;
 }
 
-// ==================== ANTI CHEAT ====================
-function setupAntiCheat() {
-    document.addEventListener('visibilitychange', () => { if (document.hidden && !tesSelesai) addWarning(); });
-    window.addEventListener('blur', () => { if (!tesSelesai) addWarning(); });
+function showReview(){
+    const a=document.getElementById('reviewBox');
+    if(a.style.display==='block'){a.style.display='none';return;}
+    a.style.display='block';
+    a.innerHTML='<h2 style="color:#1B3A5C;margin-bottom:15px">📝 Review Jawaban</h2>'+Q.map((q,i)=>{
+        const ua=ans[i],ok=ua===q.answer,em=ua===undefined;
+        const cl=em?'empty':(ok?'correct':'wrong');
+        const ic=em?'➖':(ok?'✅':'❌');
+        const opts=q.options.map((o,j)=>{let c='review-opt';if(j===q.answer)c+=' correct-ans';if(j===ua&&!ok)c+=' user wrong';else if(j===ua)c+=' user';return`<div class="${c}">${String.fromCharCode(65+j)}. ${o}${j===q.answer?' ✓':''}${j===ua?' ← Anda':''}</div>`;}).join('');
+        return`<div class="review-item ${cl}"><div class="review-q">${ic} Soal ${i+1}: ${q.q}</div>${opts}<div class="explanation"><b>💡</b> ${q.exp}</div></div>`;
+    }).join('');
 }
-function addWarning() {
-    warningCount++;
-    const el = document.getElementById('warningBadge');
-    document.getElementById('warnCount').textContent = warningCount;
-    el.style.display = 'block';
-    setTimeout(() => el.style.display = 'none', 3000);
-    if (warningCount >= 3) { alert('⚠️ 3 peringatan! Tes diakhiri.'); submitTes(); }
-}
-
-// ==================== NAVIGASI SOAL ====================
-function buatGrid() {
-    const grid = document.getElementById('gridSoal');
-    grid.innerHTML = '';
-    soalAktif.forEach((_, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'grid-btn';
-        btn.textContent = i + 1;
-        btn.onclick = () => tampilSoal(i);
-        btn.id = 'gbtn-' + i;
-        grid.appendChild(btn);
-    });
-}
-
-function tampilSoal(idx) {
-    indexSoal = idx;
-    const q = soalAktif[idx];
-    document.getElementById('nomorSoal').textContent = idx + 1;
-    document.getElementById('textSoal').textContent = q.q;
-    document.getElementById('kategoriSoal').textContent = q.cat;
-    
-    const pct = ((idx+1)/soalAktif.length)*100;
-    document.getElementById('progressBar').style.width = pct + '%';
-    
-    const container = document.getElementById('opsiContainer');
-    container.innerHTML = '';
-    q.options.forEach((opt, i) => {
-        const div = document.createElement('div');
-        div.className = 'option' + (jawaban[idx]===i ? ' selected' : '');
-        div.innerHTML = `<span class="option-letter">${String.fromCharCode(65+i)}</span><span>${opt}</span>`;
-        div.onclick = () => pilihJawaban(i);
-        container.appendChild(div);
-    });
-    
-    document.getElementById('btnPrev').disabled = idx === 0;
-    document.getElementById('btnNext').textContent = idx === soalAktif.length-1 ? 'Selesai →' : 'Selanjutnya →';
-    document.getElementById('btnFlag').classList.toggle('active', !!ragu[idx]);
-    updateGrid();
-}
-
-function pilihJawaban(i) { jawaban[indexSoal] = i; tampilSoal(indexSoal); }
-function hapusJawaban() { delete jawaban[indexSoal]; tampilSoal(indexSoal); }
-function soalBerikutnya() { if (indexSoal < soalAktif.length-1) tampilSoal(indexSoal+1); }
-function soalSebelumnya() { if (indexSoal > 0) tampilSoal(indexSoal-1); }
-function toggleRagu() { ragu[indexSoal] = !ragu[indexSoal]; tampilSoal(indexSoal); }
-
-function updateGrid() {
-    soalAktif.forEach((_, i) => {
-        const btn = document.getElementById('gbtn-'+i);
-        btn.className = 'grid-btn';
-        if (jawaban[i] !== undefined) btn.classList.add('answered');
-        if (ragu[i]) btn.classList.add('flagged');
-        if (i === indexSoal) btn.classList.add('current');
-    });
-}
-
-// ==================== SUBMIT ====================
-function konfirmasiSubmit() {
-    const dijawab = Object.keys(jawaban).length;
-    const belum = soalAktif.length - dijawab;
-    if (confirm(`Dijawab: ${dijawab}\nBelum: ${belum}\n\nKirim jawaban?`)) submitTes();
-}
-
-function submitTes() {
-    tesSelesai = true;
-    clearInterval(timerInterval);
-    if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
-    
-    let benar=0, salah=0, kosong=0;
-    soalAktif.forEach((q,i) => {
-        if (jawaban[i]===undefined) kosong++;
-        else if (jawaban[i]===q.answer) benar++;
-        else salah++;
-    });
-    
-    const skor = Math.round((benar/soalAktif.length)*100);
-    const lulus = skor >= 65;
-    const waktuPakai = (WAKTU.full||sisaWaktu) - sisaWaktu;
-    const mPakai = Math.floor(waktuPakai/60), sPakai = waktuPakai%60;
-    
-    document.getElementById('testScreen').style.display = 'none';
-    document.getElementById('resultScreen').style.display = 'block';
-    
-    document.getElementById('hasilContent').innerHTML = `
-        <h1 style="color:#1B3A5C;text-align:center">📊 Hasil Simulasi CAT</h1>
-        <div style="text-align:center;font-size:64px;font-weight:bold;color:#1B3A5C;margin:15px 0">${skor}</div>
-        <div style="text-align:center;font-size:22px;font-weight:bold;color:${lulus?'#27ae60':'#e74c3c'};margin-bottom:20px">${lulus?'✅ LULUS':'❌ TIDAK LULUS'}</div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0">
-            <div style="background:#d4edda;padding:15px;border-radius:8px;text-align:center"><div style="font-size:26px;font-weight:bold;color:#27ae60">${benar}</div><div style="font-size:12px;color:#666">✅ Benar</div></div>
-            <div style="background:#f8d7da;padding:15px;border-radius:8px;text-align:center"><div style="font-size:26px;font-weight:bold;color:#e74c3c">${salah}</div><div style="font-size:12px;color:#666">❌ Salah</div></div>
-            <div style="background:#f5f5f5;padding:15px;border-radius:8px;text-align:center"><div style="font-size:26px;font-weight:bold;color:#95a5a6">${kosong}</div><div style="font-size:12px;color:#666">➖ Kosong</div></div>
-        </div>
-        <div style="background:#f8f9fa;padding:15px;border-radius:8px;margin:15px 0;font-size:14px">
-            <p>👤 <b>Nama:</b> ${namaPeserta}</p>
-            <p>📝 <b>Total Soal:</b> ${soalAktif.length}</p>
-            <p>🎯 <b>Passing Grade:</b> 65</p>
-            <p>⏱️ <b>Waktu:</b> ${mPakai} menit ${sPakai} detik</p>
-            <p>⚠️ <b>Peringatan:</b> ${warningCount}/3</p>
-            <p>📅 <b>Tanggal:</b> ${new Date().toLocaleString('id-ID')}</p>
-        </div>`;
-}
-
-// ==================== REVIEW ====================
-function tampilkanReview() {
-    const area = document.getElementById('reviewArea');
-    if (area.style.display==='block') { area.style.display='none'; return; }
-    area.style.display = 'block';
-    area.innerHTML = '<h2 style="color:#1B3A5C;margin-bottom:15px">📝 Review Jawaban</h2>' +
-        soalAktif.map((q,i) => {
-            const ua = jawaban[i], ok = ua===q.answer, empty = ua===undefined;
-            const cls = empty?'empty':(ok?'correct':'wrong');
-            const icon = empty?'➖':(ok?'✅':'❌');
-            const opts = q.options.map((o,j) => {
-                let c = 'review-opt';
-                if (j===q.answer) c += ' correct-ans';
-                if (j===ua && !ok) c += ' user wrong';
-                else if (j===ua) c += ' user';
-                return `<div class="${c}">${String.fromCharCode(65+j)}. ${o}${j===q.answer?' ✓ (Kunci)':''}${j===ua?' ← Jawaban Anda':''}</div>`;
-            }).join('');
-            return `<div class="review-item ${cls}"><div class="review-q">${icon} Soal ${i+1}: ${q.q}</div>${opts}<div class="explanation"><b>💡 Pembahasan:</b> ${q.exp}</div></div>`;
-        }).join('');
-}
-
-window.addEventListener('beforeunload', (e) => {
-    if (document.getElementById('testScreen').style.display==='block' && !tesSelesai) { e.preventDefault(); e.returnValue=''; }
-});
 </script>
 </body>
 </html>
