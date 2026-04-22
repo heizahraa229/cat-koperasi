@@ -1,0 +1,2204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAT Simulator - SPPI Koperasi Merah Putih Indonesia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #F0F2F5;
+            color: #333;
+        }
+        
+        .header {
+            background: #1B3A5C;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .header-left, .header-center, .header-right {
+            flex: 1;
+        }
+        
+        .header-center {
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .header-right {
+            text-align: right;
+        }
+        
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .timer.warning {
+            color: #ff4444;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .question-timer-bar {
+            height: 5px;
+            background: #ddd;
+            position: relative;
+        }
+        
+        .question-timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #FFC107, #F44336);
+            transition: width 0.1s linear;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        
+        .screen {
+            display: none;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .start-screen {
+            text-align: center;
+        }
+        
+        .start-screen h1 {
+            color: #1B3A5C;
+            margin-bottom: 10px;
+        }
+        
+        .start-screen h2 {
+            color: #666;
+            font-weight: normal;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin: 20px 0;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            text-align: left;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .session-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .session-btn {
+            background: white;
+            border: 2px solid #1B3A5C;
+            color: #1B3A5C;
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        
+        .session-btn:hover {
+            background: #1B3A5C;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(27, 58, 92, 0.3);
+        }
+        
+        .session-btn h3 {
+            margin-bottom: 10px;
+        }
+        
+        .session-btn p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .btn {
+            background: #1B3A5C;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2c5282;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .test-layout {
+            display: grid;
+            grid-template-columns: 70% 30%;
+            gap: 20px;
+        }
+        
+        @media (max-width: 968px) {
+            .test-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .question-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .question-number {
+            color: #1B3A5C;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .question-text {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #333;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .option:hover {
+            background: #e9ecef;
+            border-color: #1B3A5C;
+        }
+        
+        .option.selected {
+            background: #1B3A5C;
+            color: white;
+            border-color: #1B3A5C;
+        }
+        
+        .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+            min-width: 30px;
+        }
+        
+        .question-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-panel {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+        }
+        
+        .nav-panel h3 {
+            color: #1B3A5C;
+            margin-bottom: 15px;
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .nav-btn {
+            aspect-ratio: 1;
+            border: 2px solid #dee2e6;
+            background: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .nav-btn.answered {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .nav-btn.flagged {
+            background: #ffc107;
+            color: #333;
+            border-color: #ffc107;
+        }
+        
+        .nav-btn.current {
+            border: 3px solid #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.3);
+        }
+        
+        .nav-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border: 2px solid #dee2e6;
+        }
+        
+        .legend-box.answered {
+            background: #28a745;
+            border-color: #28a745;
+        }
+        
+        .legend-box.flagged {
+            background: #ffc107;
+            border-color: #ffc107;
+        }
+        
+        .legend-box.unanswered {
+            background: #f8f9fa;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .modal-content h2 {
+            color: #1B3A5C;
+            margin-bottom: 20px;
+        }
+        
+        .modal-stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .modal-stats p {
+            margin: 8px 0;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        
+        .result-screen {
+            text-align: center;
+        }
+        
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .score-circle.pass {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .score-circle.fail {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+        
+        .score-value {
+            font-size: 48px;
+            font-weight: bold;
+        }
+        
+        .score-label {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .result-status {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .result-status.pass {
+            color: #28a745;
+        }
+        
+        .result-status.fail {
+            color: #dc3545;
+        }
+        
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #1B3A5C;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1B3A5C;
+        }
+        
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .category-breakdown {
+            text-align: left;
+            margin: 30px 0;
+        }
+        
+        .category-breakdown h3 {
+            color: #1B3A5C;
+            margin-bottom: 15px;
+        }
+        
+        .category-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .category-name {
+            font-weight: bold;
+        }
+        
+        .category-score {
+            color: #1B3A5C;
+            font-weight: bold;
+        }
+        
+        .result-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 30px;
+        }
+        
+        .review-screen {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .review-item {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .review-number {
+            font-weight: bold;
+            color: #1B3A5C;
+            font-size: 18px;
+        }
+        
+        .review-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .review-status.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .review-status.wrong {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .review-question {
+            font-size: 16px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .review-options {
+            margin: 15px 0;
+        }
+        
+        .review-option {
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 5px;
+            background: #f8f9fa;
+        }
+        
+        .review-option.user-answer {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .review-option.correct-answer {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            font-weight: bold;
+        }
+        
+        .review-option.wrong-answer {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        
+        .review-explanation {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .review-explanation strong {
+            color: #007bff;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .learn-screen {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .learn-nav {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .learn-nav h2 {
+            color: #1B3A5C;
+            margin-bottom: 15px;
+        }
+        
+        .learn-topics {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        
+        .topic-btn {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .topic-btn:hover {
+            background: #1B3A5C;
+            color: white;
+            border-color: #1B3A5C;
+        }
+        
+        .learn-content {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .learn-content h2 {
+            color: #1B3A5C;
+            margin-bottom: 20px;
+        }
+        
+        .learn-content h3 {
+            color: #2c5282;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .learn-content ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        
+        .learn-content p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .warning-banner {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .warning-banner.active {
+            display: block;
+        }
+        
+        .warning-banner strong {
+            color: #856404;
+        }
+        
+        .rules-box {
+            background: #f8f9fa;
+            border-left: 4px solid #1B3A5C;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .rules-box h3 {
+            color: #1B3A5C;
+            margin-bottom: 15px;
+        }
+        
+        .rules-box ul {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        
+        .rules-box li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+
+<!-- WELCOME SCREEN -->
+<div id="welcomeScreen" class="welcome-screen">
+    <div class="welcome-card">
+        <div class="welcome-header">
+            <div style="font-size:48px;margin-bottom:10px">🇮🇩</div>
+            <h1>SIMULASI CAT BKN</h1>
+            <h2>SPPI Koperasi Merah Putih 2026</h2>
+            <p style="color:#666;margin-top:5px">Formasi: Manajer KDKMP</p>
+        </div>
+        
+        <div class="rules-box">
+            <h3>📋 Alur Seleksi KDKMP:</h3>
+            <ul>
+                <li style="color:#999">1. Registrasi di phtc.panselnas.go.id</li>
+                <li style="color:#999">2. Seleksi Administrasi</li>
+                <li><strong style="color:#1B3A5C">3. Ujian CAT BKN ← ANDA DI SINI</strong></li>
+                <li style="color:#999">4. Tes SKT Kemenhan</li>
+                <li style="color:#999">5. Pengumuman & Pengangkatan</li>
+            </ul>
+        </div>
+
+        <div style="margin:20px 0">
+            <input type="text" id="inputNama" placeholder="Masukkan Nama Peserta" style="width:100%;padding:12px;border:2px solid #ddd;border-radius:8px;font-size:16px;margin-bottom:15px">
+        </div>
+
+        <h3 style="color:#1B3A5C;margin-bottom:15px">🎯 Pilih Mode Tes:</h3>
+        
+        <div style="display:grid;gap:10px">
+            <button onclick="mulaiTes('kognitif')" style="background:#1B3A5C;color:white;border:none;padding:15px;border-radius:8px;font-size:15px;cursor:pointer;text-align:left">
+                <strong>🧠 TES POTENSI KOGNITIF</strong><br>
+                <small style="opacity:0.8">Deret Angka, Aritmatika, Logika, Penalaran, Verbal — 60 soal / 90 menit</small>
+            </button>
+            <button onclick="mulaiTes('mental')" style="background:#2E7D32;color:white;border:none;padding:15px;border-radius:8px;font-size:15px;cursor:pointer;text-align:left">
+                <strong>🇮🇩 TES MENTAL IDEOLOGI</strong><br>
+                <small style="opacity:0.8">Pancasila, UUD 1945, NKRI, Bela Negara, Integritas — 60 soal / 60 menit</small>
+            </button>
+            <button onclick="mulaiTes('tkb')" style="background:#E65100;color:white;border:none;padding:15px;border-radius:8px;font-size:15px;cursor:pointer;text-align:left">
+                <strong>🏘️ TES MANAJEMEN BIDANG (KDKMP)</strong><br>
+                <small style="opacity:0.8">Koperasi, Manajemen, Keuangan — 50 soal / 45 menit</small>
+            </button>
+            <button onclick="mulaiTes('full')" style="background:#C62828;color:white;border:none;padding:15px;border-radius:8px;font-size:15px;cursor:pointer;text-align:left">
+                <strong>🎯 SIMULASI CAT PENUH</strong><br>
+                <small style="opacity:0.8">Kognitif + Mental + TKB — 110 soal / 120 menit</small>
+            </button>
+        </div>
+
+        <div class="rules-box" style="margin-top:20px">
+            <h3>⚠️ Tata Tertib Ujian:</h3>
+            <ul>
+                <li>Soal dan jawaban diacak setiap sesi</li>
+                <li>Bisa navigasi maju/mundur antar soal</li>
+                <li>Tandai soal ragu dengan tombol 🚩</li>
+                <li>Jangan pindah tab (max 3 peringatan)</li>
+                <li>Auto submit saat waktu habis</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- TEST SCREEN -->
+<div id="testScreen" style="display:none">
+    <div class="header">
+        <div class="header-left">
+            <div style="font-size:13px;opacity:0.8">Peserta:</div>
+            <div id="namaPeserta" style="font-weight:bold"></div>
+        </div>
+        <div class="header-center">
+            SIMULASI CAT BKN — SPPI KOPERASI MERAH PUTIH
+        </div>
+        <div class="header-right">
+            <div style="font-size:13px;opacity:0.8">Sisa Waktu:</div>
+            <div class="timer" id="timerDisplay">00:00</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="question-panel">
+            <div class="question-info">
+                <span>Soal <strong id="nomorSoal">1</strong> dari <strong id="totalSoal">110</strong></span>
+                <span id="kategoriSoal" class="category-badge" style="background:#1B3A5C;color:white;padding:4px 12px;border-radius:12px;font-size:12px">Kategori</span>
+            </div>
+            
+            <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+            
+            <div class="question-box">
+                <div class="question-text" id="textSoal">Loading...</div>
+            </div>
+
+            <div id="opsiContainer" class="options-container"></div>
+
+            <div class="nav-buttons">
+                <button onclick="soalSebelumnya()" id="btnPrev" class="nav-btn">← Sebelumnya</button>
+                <button onclick="toggleRagu()" id="btnFlag" class="nav-btn flag-btn">🚩 Ragu-ragu</button>
+                <button onclick="hapusJawaban()" class="nav-btn" style="background:#95a5a6;color:white">🗑️ Hapus</button>
+                <button onclick="soalBerikutnya()" id="btnNext" class="nav-btn">Selanjutnya →</button>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="sidebar-card">
+                <h3 style="text-align:center;color:#1B3A5C;margin-bottom:10px">📋 Navigasi Soal</h3>
+                <div style="font-size:11px;margin-bottom:10px">
+                    <span style="display:inline-block;width:12px;height:12px;background:#27ae60;border-radius:2px;vertical-align:middle"></span> Dijawab
+                    <span style="display:inline-block;width:12px;height:12px;background:#f39c12;border-radius:2px;vertical-align:middle;margin-left:8px"></span> Ragu
+                    <span style="display:inline-block;width:12px;height:12px;background:#ecf0f1;border:1px solid #bdc3c7;border-radius:2px;vertical-align:middle;margin-left:8px"></span> Belum
+                </div>
+                <div id="gridSoal" class="question-grid"></div>
+                <button onclick="konfirmasiSubmit()" style="width:100%;background:#27ae60;color:white;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;margin-top:10px">✅ SELESAI & KIRIM</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- WARNING BADGE -->
+<div id="warningBadge" style="position:fixed;top:10px;right:10px;background:#e74c3c;color:white;padding:8px 15px;border-radius:20px;font-size:12px;z-index:9999;display:none">⚠️ Peringatan: <span id="warnCount">0</span>/3</div>
+
+<!-- RESULT SCREEN -->
+<div id="resultScreen" style="display:none">
+    <div class="welcome-screen">
+        <div class="welcome-card" style="max-width:700px">
+            <div id="hasilContent"></div>
+            <div style="display:flex;gap:10px;margin-top:20px">
+                <button onclick="tampilkanReview()" style="flex:1;background:#3498db;color:white;border:none;padding:12px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:bold">📝 Review Jawaban</button>
+                <button onclick="location.reload()" style="flex:1;background:#1B3A5C;color:white;border:none;padding:12px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:bold">🔄 Ulangi Tes</button>
+            </div>
+            <div id="reviewArea" style="margin-top:20px;display:none"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+        const soalIQ = [
+            // Deret Angka (15 soal)
+            {q: "Tentukan angka selanjutnya dari deret: 2, 6, 18, 54, ...", options: ["108", "162", "216", "324"], answer: 1, exp: "Pola geometri dengan rasio 3 (setiap angka dikali 3). 54 × 3 = 162", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 3, 7, 11, 15, ...", options: ["17", "18", "19", "20"], answer: 2, exp: "Pola aritmatika dengan beda 4 (setiap angka ditambah 4). 15 + 4 = 19", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 1, 1, 2, 3, 5, 8, ...", options: ["11", "12", "13", "14"], answer: 2, exp: "Deret Fibonacci (jumlah dua angka sebelumnya). 5 + 8 = 13", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 2, 5, 10, 17, 26, ...", options: ["35", "36", "37", "38"], answer: 2, exp: "Pola selisih yang naik 2 setiap langkah (+3, +5, +7, +9, +11). 26 + 11 = 37", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 100, 95, 85, 70, 50, ...", options: ["20", "25", "30", "35"], answer: 1, exp: "Pola selisih yang bertambah: -5, -10, -15, -20, -25. Jadi 50 - 25 = 25", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 1, 4, 9, 16, 25, ...", options: ["30", "32", "35", "36"], answer: 3, exp: "Deret kuadrat: 1², 2², 3², 4², 5², 6² = 36", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 3, 6, 12, 24, 48, ...", options: ["72", "84", "96", "108"], answer: 2, exp: "Pola geometri dengan rasio 2 (setiap angka dikali 2). 48 × 2 = 96", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 5, 8, 14, 23, 35, ...", options: ["45", "48", "50", "52"], answer: 2, exp: "Pola selisih yang naik 3 setiap langkah (+3, +6, +9, +12, +15). 35 + 15 = 50", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 2, 3, 5, 7, 11, 13, ...", options: ["15", "16", "17", "18"], answer: 2, exp: "Deret bilangan prima. Bilangan prima setelah 13 adalah 17", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 1, 2, 6, 24, 120, ...", options: ["360", "480", "600", "720"], answer: 3, exp: "Deret faktorial: 1!, 2!, 3!, 4!, 5!, 6! = 720", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 4, 7, 13, 25, 49, ...", options: ["85", "91", "97", "103"], answer: 2, exp: "Pola: selisih dikali 2 setiap langkah (+3, +6, +12, +24, +48). 49 + 48 = 97", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 1, 3, 7, 15, 31, ...", options: ["55", "59", "63", "67"], answer: 2, exp: "Pola: (angka × 2) + 1. Jadi 31 × 2 + 1 = 63", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 10, 8, 11, 7, 12, 6, ...", options: ["11", "12", "13", "14"], answer: 2, exp: "Pola selang-seling: naik 1 lalu turun 1. Setelah 6 adalah 13", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 0, 1, 1, 2, 4, 7, 13, ...", options: ["20", "22", "24", "26"], answer: 2, exp: "Deret Tribonacci (jumlah tiga angka sebelumnya). 4 + 7 + 13 = 24", cat: "IQ - Deret Angka"},
+            {q: "Tentukan angka selanjutnya dari deret: 64, 32, 16, 8, ...", options: ["2", "4", "6", "8"], answer: 1, exp: "Pola geometri dengan rasio 1/2 (setiap angka dibagi 2). 8 ÷ 2 = 4", cat: "IQ - Deret Angka"},
+            
+            // Analogi Verbal (10 soal)
+            {q: "PANAS : DINGIN = TINGGI : ?", options: ["Besar", "Rendah", "Kecil", "Luas"], answer: 1, exp: "Panas adalah antonim dari dingin, seperti tinggi adalah antonim dari rendah", cat: "IQ - Analogi Verbal"},
+            {q: "DOKTER : PASIEN = GURU : ?", options: ["Sekolah", "Murid", "Buku", "Kelas"], answer: 1, exp: "Dokter melayani pasien, seperti guru mengajar murid", cat: "IQ - Analogi Verbal"},
+            {q: "MATA : MELIHAT = TELINGA : ?", options: ["Mendengar", "Berbicara", "Mencium", "Meraba"], answer: 0, exp: "Mata berfungsi untuk melihat, seperti telinga berfungsi untuk mendengar", cat: "IQ - Analogi Verbal"},
+            {q: "BUKU : PERPUSTAKAAN = UANG : ?", options: ["Toko", "Bank", "Pasar", "Kantor"], answer: 1, exp: "Buku disimpan di perpustakaan, seperti uang disimpan di bank", cat: "IQ - Analogi Verbal"},
+            {q: "KUCING : MEONG = ANJING : ?", options: ["Mengaum", "Guk-guk", "Berkicau", "Mendesis"], answer: 1, exp: "Kucing bersuara meong, seperti anjing bersuara guk-guk", cat: "IQ - Analogi Verbal"},
+            {q: "KAYU : MEJA = TEPUNG : ?", options: ["Gandum", "Roti", "Kue", "Makanan"], answer: 1, exp: "Kayu adalah bahan baku meja, seperti tepung adalah bahan baku roti", cat: "IQ - Analogi Verbal"},
+            {q: "JARI : TANGAN = DAUN : ?", options: ["Bunga", "Pohon", "Akar", "Batang"], answer: 1, exp: "Jari adalah bagian dari tangan, seperti daun adalah bagian dari pohon", cat: "IQ - Analogi Verbal"},
+            {q: "PILOT : PESAWAT = NAHKODA : ?", options: ["Mobil", "Kereta", "Kapal", "Bus"], answer: 2, exp: "Pilot mengemudikan pesawat, seperti nahkoda mengemudikan kapal", cat: "IQ - Analogi Verbal"},
+            {q: "LAPAR : MAKAN = HAUS : ?", options: ["Tidur", "Minum", "Istirahat", "Bernafas"], answer: 1, exp: "Lapar diatasi dengan makan, seperti haus diatasi dengan minum", cat: "IQ - Analogi Verbal"},
+            {q: "PENULIS : NOVEL = SUTRADARA : ?", options: ["Teater", "Film", "Musik", "Lukisan"], answer: 1, exp: "Penulis menciptakan novel, seperti sutradara menciptakan film", cat: "IQ - Analogi Verbal"},
+            
+            // Logika/Silogisme (10 soal)
+            {q: "Semua mahasiswa rajin belajar. Andi adalah mahasiswa. Kesimpulannya?", options: ["Andi malas", "Andi rajin belajar", "Andi tidak belajar", "Tidak dapat disimpulkan"], answer: 1, exp: "Silogisme valid: Jika semua mahasiswa rajin dan Andi mahasiswa, maka Andi rajin", cat: "IQ - Logika"},
+            {q: "Tidak ada kucing yang bisa terbang. Tom adalah kucing. Kesimpulannya?", options: ["Tom bisa terbang", "Tom tidak bisa terbang", "Tom mungkin bisa terbang", "Tidak dapat disimpulkan"], answer: 1, exp: "Silogisme valid: Jika tidak ada kucing terbang dan Tom kucing, maka Tom tidak bisa terbang", cat: "IQ - Logika"},
+            {q: "Jika hujan, jalanan basah. Jalanan tidak basah. Kesimpulannya?", options: ["Hujan", "Tidak hujan", "Mungkin hujan", "Jalanan kering"], answer: 1, exp: "Modus tollens: Jika P maka Q, tidak Q, maka tidak P. Jalanan tidak basah berarti tidak hujan", cat: "IQ - Logika"},
+            {q: "Semua burung memiliki sayap. Pinguin adalah burung. Kesimpulannya?", options: ["Pinguin tidak punya sayap", "Pinguin punya sayap", "Pinguin bisa terbang", "Pinguin bukan burung"], answer: 1, exp: "Silogisme valid: Semua burung punya sayap, pinguin burung, maka pinguin punya sayap", cat: "IQ - Logika"},
+            {q: "Sebagian siswa suka matematika. Sebagian siswa suka bahasa. Kesimpulannya?", options: ["Semua siswa suka keduanya", "Tidak ada yang suka keduanya", "Mungkin ada yang suka keduanya", "Semua siswa suka matematika"], answer: 2, exp: "Dari dua premis 'sebagian', tidak bisa disimpulkan pasti, hanya kemungkinan", cat: "IQ - Logika"},
+            {q: "Jika Budi lulus ujian, dia dapat hadiah. Budi dapat hadiah. Kesimpulannya?", options: ["Budi lulus ujian", "Budi tidak lulus", "Belum tentu lulus", "Budi gagal"], answer: 2, exp: "Kesalahan affirming the consequent: Budi bisa dapat hadiah dari sumber lain, bukan hanya dari lulus", cat: "IQ - Logika"},
+            {q: "Semua politisi pandai bicara. Beberapa pengacara pandai bicara. Kesimpulannya?", options: ["Semua pengacara politisi", "Beberapa pengacara politisi", "Tidak bisa disimpulkan pasti", "Semua politisi pengacara"], answer: 2, exp: "Tidak bisa menyimpulkan hubungan pasti antara politisi dan pengacara dari premis ini", cat: "IQ - Logika"},
+            {q: "Ani lebih tinggi dari Budi. Cici lebih pendek dari Budi. Siapa yang paling pendek?", options: ["Ani", "Budi", "Cici", "Sama tinggi"], answer: 2, exp: "Urutan tinggi: Ani > Budi > Cici. Jadi Cici paling pendek", cat: "IQ - Logika"},
+            {q: "Semua X adalah Y. Semua Y adalah Z. Kesimpulannya?", options: ["Semua X adalah Z", "Semua Z adalah X", "Tidak ada X yang Z", "Tidak dapat disimpulkan"], answer: 0, exp: "Silogisme transitif: Jika X→Y dan Y→Z, maka X→Z", cat: "IQ - Logika"},
+            {q: "Rina lebih tua dari Sari. Sari lebih tua dari Tina. Siapa yang paling tua?", options: ["Sari", "Tina", "Rina", "Sama usia"], answer: 2, exp: "Urutan usia: Rina > Sari > Tina. Jadi Rina paling tua", cat: "IQ - Logika"},
+            
+            // Aritmatika (15 soal)
+            {q: "Sebuah barang seharga Rp 250.000 mendapat diskon 20%. Berapa harga setelah diskon?", options: ["Rp 180.000", "Rp 200.000", "Rp 220.000", "Rp 230.000"], answer: 1, exp: "Diskon 20% = 250.000 × 20% = 50.000. Harga akhir = 250.000 - 50.000 = Rp 200.000", cat: "IQ - Aritmatika"},
+            {q: "Umur ayah 3 kali umur Andi. Selisih umur mereka 30 tahun. Berapa umur Andi?", options: ["10 tahun", "12 tahun", "15 tahun", "18 tahun"], answer: 2, exp: "Misalkan umur Andi = x, ayah = 3x. Selisih: 3x - x = 30, maka 2x = 30, x = 15 tahun", cat: "IQ - Aritmatika"},
+            {q: "Sebuah mobil menempuh jarak 180 km dalam waktu 3 jam. Berapa kecepatan rata-ratanya?", options: ["50 km/jam", "55 km/jam", "60 km/jam", "65 km/jam"], answer: 2, exp: "Kecepatan = jarak ÷ waktu = 180 km ÷ 3 jam = 60 km/jam", cat: "IQ - Aritmatika"},
+            {q: "Jika 3/4 dari suatu bilangan adalah 60, berapakah bilangan tersebut?", options: ["70", "75", "80", "85"], answer: 2, exp: "3/4 × N = 60, maka N = 60 × 4/3 = 80", cat: "IQ - Aritmatika"},
+            {q: "Seorang pedagang membeli barang Rp 400.000 dan menjualnya Rp 500.000. Berapa persen keuntungannya?", options: ["20%", "25%", "30%", "35%"], answer: 1, exp: "Untung = 500.000 - 400.000 = 100.000. Persentase = (100.000/400.000) × 100% = 25%", cat: "IQ - Aritmatika"},
+            {q: "Sebuah bak mandi penuh dalam 6 jam. Berapa bagian yang terisi dalam 2 jam?", options: ["1/4", "1/3", "1/2", "2/3"], answer: 1, exp: "Dalam 2 jam terisi 2/6 = 1/3 bagian", cat: "IQ - Aritmatika"},
+            {q: "Rata-rata nilai 5 siswa adalah 80. Jika satu siswa bernilai 60, berapa rata-rata 4 siswa lainnya?", options: ["80", "82", "85", "88"], answer: 2, exp: "Total 5 siswa = 80 × 5 = 400. Total 4 siswa = 400 - 60 = 340. Rata-rata = 340 ÷ 4 = 85", cat: "IQ - Aritmatika"},
+            {q: "Perbandingan uang Adi dan Beni adalah 3:5. Jika uang Beni Rp 150.000, berapa uang Adi?", options: ["Rp 75.000", "Rp 90.000", "Rp 100.000", "Rp 120.000"], answer: 1, exp: "Adi/Beni = 3/5, maka Adi = (3/5) × 150.000 = Rp 90.000", cat: "IQ - Aritmatika"},
+            {q: "Luas persegi panjang dengan panjang 12 cm dan lebar 8 cm adalah?", options: ["80 cm²", "88 cm²", "96 cm²", "104 cm²"], answer: 2, exp: "Luas = panjang × lebar = 12 × 8 = 96 cm²", cat: "IQ - Aritmatika"},
+            {q: "Harga 5 kg beras adalah Rp 65.000. Berapa harga 8 kg beras?", options: ["Rp 96.000", "Rp 100.000", "Rp 104.000", "Rp 108.000"], answer: 2, exp: "Harga per kg = 65.000 ÷ 5 = 13.000. Harga 8 kg = 13.000 × 8 = Rp 104.000", cat: "IQ - Aritmatika"},
+            {q: "Keliling lingkaran dengan jari-jari 7 cm adalah? (π = 22/7)", options: ["38 cm", "42 cm", "44 cm", "48 cm"], answer: 2, exp: "Keliling = 2πr = 2 × (22/7) × 7 = 44 cm", cat: "IQ - Aritmatika"},
+            {q: "Dua pekerja menyelesaikan pekerjaan dalam 12 hari. Berapa hari jika dikerjakan 4 pekerja?", options: ["4 hari", "6 hari", "8 hari", "10 hari"], answer: 1, exp: "Berbanding terbalik: 2 pekerja × 12 hari = 4 pekerja × x hari, maka x = 6 hari", cat: "IQ - Aritmatika"},
+            {q: "Suhu di pagi hari -3°C dan siang hari 28°C. Berapa selisih suhunya?", options: ["25°C", "28°C", "31°C", "34°C"], answer: 2, exp: "Selisih = 28 - (-3) = 28 + 3 = 31°C", cat: "IQ - Aritmatika"},
+            {q: "Modal Rp 1.000.000 dengan bunga 10% per tahun. Berapa total setelah 1 tahun?", options: ["Rp 1.050.000", "Rp 1.100.000", "Rp 1.150.000", "Rp 1.200.000"], answer: 1, exp: "Bunga = 1.000.000 × 10% = 100.000. Total = 1.000.000 + 100.000 = Rp 1.100.000", cat: "IQ - Aritmatika"},
+            {q: "Dari 40 siswa, 60% lulus ujian. Berapa siswa yang tidak lulus?", options: ["12", "14", "16", "18"], answer: 2, exp: "Lulus = 40 × 60% = 24 siswa. Tidak lulus = 40 - 24 = 16 siswa", cat: "IQ - Aritmatika"},
+            
+            // Penalaran (10 soal)
+            {q: "Jika A=1, B=2, C=3, maka CAB = ?", options: ["123", "312", "321", "213"], answer: 1, exp: "C=3, A=1, B=2, maka CAB = 312", cat: "IQ - Penalaran"},
+            {q: "Pola: bulat, kotak, bulat, kotak, bulat, kotak, bulat, ... Bentuk ke-8 adalah?", options: ["Bulat", "Kotak", "Segitiga", "Tidak ada"], answer: 1, exp: "Pola berulang setiap 2: posisi genap = kotak. Posisi 8 (genap) = kotak", cat: "IQ - Penalaran"},
+            {q: "Dalam bahasa alien: kucing=anjing, anjing=burung, burung=ikan. Yang bisa terbang adalah?", options: ["Kucing", "Anjing", "Ikan", "Burung"], answer: 2, exp: "Burung (yang terbang) = ikan dalam bahasa alien", cat: "IQ - Penalaran"},
+            {q: "Hari ini Selasa. 100 hari lagi hari apa?", options: ["Senin", "Selasa", "Rabu", "Kamis"], answer: 3, exp: "100 ÷ 7 = 14 minggu + 2 hari. Selasa + 2 hari = Kamis", cat: "IQ - Penalaran"},
+            {q: "Jarum jam membentuk sudut 180 derajat. Pukul berapa?", options: ["3:00", "6:00", "9:00", "12:00"], answer: 1, exp: "Sudut 180° (garis lurus) terjadi saat pukul 6:00", cat: "IQ - Penalaran"},
+            {q: "Dalam kode: Blomp = Rinta, Rinta = Kado. Maka Blomp = ?", options: ["Blomp", "Rinta", "Kado", "Tidak sama"], answer: 2, exp: "Transitif: Jika Blomp = Rinta dan Rinta = Kado, maka Blomp = Kado", cat: "IQ - Penalaran"},
+            {q: "Kata BUKU jika dibalik menjadi?", options: ["UBUK", "UKUB", "KUBUK", "BUKU"], answer: 1, exp: "BUKU dibalik huruf per huruf menjadi UKUB", cat: "IQ - Penalaran"},
+            {q: "Deret huruf: Z, X, V, T, R, ... Huruf selanjutnya?", options: ["Q", "P", "O", "N"], answer: 1, exp: "Mundur 2 huruf setiap langkah. Setelah R (18) mundur 2 = P (16)", cat: "IQ - Penalaran"},
+            {q: "Tanggal 1 Januari adalah hari Rabu. Tanggal 1 Februari hari apa? (bukan tahun kabisat)", options: ["Kamis", "Jumat", "Sabtu", "Minggu"], answer: 2, exp: "Januari 31 hari. 31 ÷ 7 = 4 minggu + 3 hari. Rabu + 3 = Sabtu", cat: "IQ - Penalaran"},
+            {q: "Berapa banyak angka dari 1-100 yang mengandung digit 3?", options: ["18", "19", "20", "21"], answer: 1, exp: "3,13,23,30-39(10 angka),43,53,63,73,83,93 = total 19 angka", cat: "IQ - Penalaran"}
+        ];
+
+        const soalMI = [
+            // Pancasila (12 soal)
+            {q: "Apa bunyi sila pertama Pancasila?", options: ["Kemanusiaan yang adil dan beradab", "Ketuhanan Yang Maha Esa", "Persatuan Indonesia", "Kerakyatan yang dipimpin oleh hikmat"], answer: 1, exp: "Sila pertama Pancasila adalah 'Ketuhanan Yang Maha Esa'", cat: "Mental Ideologi - Pancasila"},
+            {q: "Lambang sila ketiga Pancasila adalah?", options: ["Bintang", "Rantai", "Pohon Beringin", "Kepala Banteng"], answer: 2, exp: "Sila ketiga (Persatuan Indonesia) dilambangkan dengan Pohon Beringin", cat: "Mental Ideologi - Pancasila"},
+            {q: "Pancasila sebagai dasar negara disahkan pada tanggal?", options: ["17 Agustus 1945", "18 Agustus 1945", "1 Juni 1945", "22 Juni 1945"], answer: 1, exp: "Pancasila disahkan sebagai dasar negara pada 18 Agustus 1945 oleh PPKI", cat: "Mental Ideologi - Pancasila"},
+            {q: "Rumusan resmi Pancasila terdapat dalam?", options: ["Piagam Jakarta", "Pembukaan UUD 1945", "Batang Tubuh UUD 1945", "Dekrit Presiden"], answer: 1, exp: "Rumusan resmi Pancasila terdapat dalam Pembukaan UUD 1945 alinea keempat", cat: "Mental Ideologi - Pancasila"},
+            {q: "Nilai yang terkandung dalam sila kedua Pancasila adalah?", options: ["Ketuhanan", "Persamaan hak dan kewajiban", "Persatuan", "Musyawarah"], answer: 1, exp: "Sila kedua mengandung nilai kemanusiaan, persamaan hak dan kewajiban, serta keadilan", cat: "Mental Ideologi - Pancasila"},
+            {q: "Hari Kesaktian Pancasila diperingati setiap tanggal?", options: ["17 Agustus", "1 Juni", "1 Oktober", "18 Agustus"], answer: 2, exp: "Hari Kesaktian Pancasila diperingati setiap 1 Oktober", cat: "Mental Ideologi - Pancasila"},
+            {q: "Siapa yang pertama kali mengusulkan nama 'Pancasila'?", options: ["Mohammad Hatta", "Ir. Soekarno", "Soepomo", "Muhammad Yamin"], answer: 1, exp: "Ir. Soekarno pertama kali mengusulkan nama 'Pancasila' dalam sidang BPUPKI 1 Juni 1945", cat: "Mental Ideologi - Pancasila"},
+            {q: "Bunyi sila keempat Pancasila adalah?", options: ["Persatuan Indonesia", "Kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan", "Keadilan sosial bagi seluruh rakyat Indonesia", "Ketuhanan Yang Maha Esa"], answer: 1, exp: "Sila keempat berbunyi 'Kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan'", cat: "Mental Ideologi - Pancasila"},
+            {q: "Lambang sila kelima Pancasila adalah?", options: ["Pohon Beringin", "Kepala Banteng", "Padi dan Kapas", "Bintang"], answer: 2, exp: "Sila kelima (Keadilan Sosial) dilambangkan dengan Padi dan Kapas", cat: "Mental Ideologi - Pancasila"},
+            {q: "Pancasila sebagai pandangan hidup bangsa berarti?", options: ["Sumber hukum tertinggi", "Pedoman tingkah laku bangsa", "Ideologi negara", "Dasar negara"], answer: 1, exp: "Sebagai pandangan hidup, Pancasila menjadi pedoman tingkah laku dan cara hidup bangsa Indonesia", cat: "Mental Ideologi - Pancasila"},
+            {q: "Pengamalan sila ketiga Pancasila dalam kehidupan sehari-hari adalah?", options: ["Beribadah sesuai agama", "Mengutamakan kepentingan bangsa di atas kepentingan pribadi", "Musyawarah untuk mufakat", "Membantu sesama"], answer: 1, exp: "Sila ketiga tentang persatuan diamalkan dengan mengutamakan kepentingan bangsa dan negara", cat: "Mental Ideologi - Pancasila"},
+            {q: "Pancasila sebagai dasar negara artinya?", options: ["Pandangan hidup", "Sumber segala sumber hukum", "Ideologi terbuka", "Kepribadian bangsa"], answer: 1, exp: "Sebagai dasar negara, Pancasila adalah sumber dari segala sumber hukum di Indonesia", cat: "Mental Ideologi - Pancasila"},
+            
+            // UUD 1945 (12 soal)
+            {q: "Berapa jumlah pasal dalam UUD 1945 setelah amandemen?", options: ["37 pasal", "42 pasal", "45 pasal", "50 pasal"], answer: 0, exp: "Setelah 4 kali amandemen, UUD 1945 memiliki 37 pasal", cat: "Mental Ideologi - UUD 1945"},
+            {q: "Pembukaan UUD 1945 terdiri dari berapa alinea?", options: ["2 alinea", "3 alinea", "4 alinea", "5 alinea"], answer: 2, exp: "Pembukaan UUD 1945 terdiri dari 4 alinea", cat: "Mental Ideologi - UUD 1945"},
+            {q: "Pasal 1 ayat (1) UUD 1945 menyatakan bahwa?", options: ["Indonesia adalah negara hukum", "Negara Indonesia adalah negara kesatuan yang berbentuk republik", "Kedaulatan berada di tangan rakyat", "Presiden adalah kepala negara"], answer: 1, exp: "Pasal 1 ayat (1): 'Negara Indonesia ialah negara kesatuan yang berbentuk republik'", cat: "Mental Ideologi - UUD 1945"},
+            {q: "Lembaga yang berwenang mengubah UUD 1945 adalah?", options: ["DPR", "MPR", "Presiden", "MK"], answer: 1, exp: "MPR (Majelis Permusyawaratan Rakyat) berwenang mengubah dan menetapkan UUD", cat: "Mental Ideologi - UUD 1945"},
+            {q: "Pasal 33 UUD 1945 mengatur tentang?", options: ["Hak asasi manusia", "Perekonomian nasional", "Pertahanan negara", "Pendidikan"], answer: 1, exp: "Pasal 33 mengatur tentang perekonomian nasional dan kesejahteraan sosial", cat: "Mental Ideologi - UUD 1945"},
+            {q: "UUD 1945 telah diamandemen sebanyak?", options: ["2 kali", "3 kali", "4 kali", "5 kali"], answer: 2, exp: "UUD 1945 telah diamandemen 4 kali (1999, 2000, 2001, 2002)", cat: "Mental Ideologi - UUD 1945"},
+            {q: "Hak warga negara atas pendidikan diatur dalam pasal?", options: ["Pasal 27", "Pasal 28", "Pasal 31", "Pasal 33"], answer: 2, exp: "Pasal 31 UUD 1945 mengatur tentang hak atas pendidikan", cat: "Mental Ideologi - UUD 1945"},
+            {q: "Presiden dan Wakil Presiden dipilih melalui?", options: ["MPR", "DPR", "Pemilu langsung", "Pemilihan tidak langsung"], answer: 2, exp: "Setelah amandemen, Presiden dan Wapres dipilih langsung oleh rakyat melalui Pemilu", cat: "Mental Ideologi - UUD 1945"},
+            {q: "Masa jabatan Presiden menurut UUD 1945 adalah?", options: ["4 tahun", "5 tahun", "6 tahun", "7 tahun"], answer: 1, exp: "Masa jabatan Presiden adalah 5 tahun dan dapat dipilih kembali untuk 1 kali masa jabatan", cat: "Mental Ideologi - UUD 1945"},
+            {q: "Lembaga yang berwenang melakukan judicial review terhadap UU adalah?", options: ["MA", "MK", "KY", "DPR"], answer: 1, exp: "Mahkamah Konstitusi (MK) berwenang menguji UU terhadap UUD 1945", cat: "Mental Ideologi - UUD 1945"},
+            {q: "Pasal 27 ayat (3) UUD 1945 mengatur tentang?", options: ["Hak atas pekerjaan", "Kewajiban bela negara", "Hak atas pendidikan", "Kebebasan beragama"], answer: 1, exp: "Pasal 27 ayat (3): 'Setiap warga negara berhak dan wajib ikut serta dalam upaya pembelaan negara'", cat: "Mental Ideologi - UUD 1945"},
+            {q: "Kedaulatan rakyat dalam UUD 1945 diatur dalam?", options: ["Pasal 1 ayat 1", "Pasal 1 ayat 2", "Pasal 2", "Pasal 3"], answer: 1, exp: "Pasal 1 ayat (2): 'Kedaulatan berada di tangan rakyat dan dilaksanakan menurut Undang-Undang Dasar'", cat: "Mental Ideologi - UUD 1945"},
+            
+            // NKRI (10 soal)
+            {q: "Semboyan Bhinneka Tunggal Ika berasal dari kitab?", options: ["Negarakertagama", "Sutasoma", "Arjunawiwaha", "Ramayana"], answer: 1, exp: "Bhinneka Tunggal Ika berasal dari kitab Sutasoma karya Mpu Tantular", cat: "Mental Ideologi - NKRI"},
+            {q: "Arti Bhinneka Tunggal Ika adalah?", options: ["Satu untuk semua", "Berbeda-beda tetapi tetap satu", "Bersatu kita teguh", "Persatuan dan kesatuan"], answer: 1, exp: "Bhinneka Tunggal Ika berarti 'berbeda-beda tetapi tetap satu'", cat: "Mental Ideologi - NKRI"},
+            {q: "Jumlah provinsi di Indonesia saat ini (2024) adalah?", options: ["34", "35", "37", "38"], answer: 3, exp: "Indonesia memiliki 38 provinsi (termasuk Papua Tengah, Papua Pegunungan, Papua Selatan, Papua Barat Daya)", cat: "Mental Ideologi - NKRI"},
+            {q: "Bentuk negara Indonesia adalah?", options: ["Serikat", "Kesatuan", "Federal", "Konfederasi"], answer: 1, exp: "Indonesia adalah negara kesatuan (unitaris) yang berbentuk republik", cat: "Mental Ideologi - NKRI"},
+            {q: "Wilayah Indonesia membentang dari?", options: ["Sabang sampai Merauke", "Aceh sampai Papua", "Barat sampai Timur", "Utara sampai Selatan"], answer: 0, exp: "Wilayah Indonesia membentang dari Sabang (Aceh) sampai Merauke (Papua)", cat: "Mental Ideologi - NKRI"},
+            {q: "Bahasa persatuan Indonesia adalah?", options: ["Bahasa Melayu", "Bahasa Indonesia", "Bahasa Jawa", "Bahasa daerah"], answer: 1, exp: "Bahasa Indonesia adalah bahasa persatuan yang diikrarkan dalam Sumpah Pemuda", cat: "Mental Ideologi - NKRI"},
+            {q: "Jumlah suku bangsa di Indonesia lebih dari?", options: ["300", "500", "1.000", "1.300"], answer: 3, exp: "Indonesia memiliki lebih dari 1.300 suku bangsa", cat: "Mental Ideologi - NKRI"},
+            {q: "Lagu kebangsaan Indonesia Raya diciptakan oleh?", options: ["C. Simanjuntak", "W.R. Supratman", "Ismail Marzuki", "Ibu Sud"], answer: 1, exp: "Lagu Indonesia Raya diciptakan oleh Wage Rudolf Supratman", cat: "Mental Ideologi - NKRI"},
+            {q: "Lambang negara Garuda Pancasila ditetapkan melalui?", options: ["UU No. 24 Tahun 2009", "PP No. 66 Tahun 1951", "Keppres No. 1 Tahun 1950", "UU No. 1 Tahun 1945"], answer: 1, exp: "Garuda Pancasila ditetapkan melalui PP No. 66 Tahun 1951", cat: "Mental Ideologi - NKRI"},
+            {q: "Perisai pada lambang Garuda Pancasila melambangkan?", options: ["Kekuatan negara", "Simbol Pancasila", "Pertahanan negara", "Kedaulatan"], answer: 1, exp: "Perisai di dada Garuda berisi simbol-simbol kelima sila Pancasila", cat: "Mental Ideologi - NKRI"},
+            
+            // Bela Negara (10 soal)
+            {q: "Dasar hukum bela negara terdapat dalam pasal?", options: ["Pasal 27 ayat (1)", "Pasal 27 ayat (3) dan Pasal 30 ayat (1)", "Pasal 28", "Pasal 31"], answer: 1, exp: "Bela negara diatur dalam Pasal 27 ayat (3) dan Pasal 30 ayat (1) UUD 1945", cat: "Mental Ideologi - Bela Negara"},
+            {q: "Komponen utama pertahanan negara adalah?", options: ["Polisi", "TNI", "Rakyat", "Pemerintah"], answer: 1, exp: "TNI (Tentara Nasional Indonesia) adalah komponen utama pertahanan negara", cat: "Mental Ideologi - Bela Negara"},
+            {q: "Hari Bela Negara diperingati setiap tanggal?", options: ["17 Agustus", "10 November", "19 Desember", "1 Oktober"], answer: 2, exp: "Hari Bela Negara diperingati setiap 19 Desember", cat: "Mental Ideologi - Bela Negara"},
+            {q: "Bentuk bela negara bagi pelajar adalah?", options: ["Ikut perang", "Belajar dengan sungguh-sungguh", "Menjadi tentara", "Membayar pajak"], answer: 1, exp: "Pelajar dapat bela negara dengan belajar sungguh-sungguh untuk memajukan bangsa", cat: "Mental Ideologi - Bela Negara"},
+            {q: "Proklamator kemerdekaan Indonesia adalah?", options: ["Soekarno dan Hatta", "Soekarno dan Soeharto", "Hatta dan Sjahrir", "Soekarno dan Sjahrir"], answer: 0, exp: "Proklamator kemerdekaan Indonesia adalah Ir. Soekarno dan Drs. Mohammad Hatta", cat: "Mental Ideologi - Bela Negara"},
+            {q: "Hari Pahlawan diperingati setiap tanggal?", options: ["17 Agustus", "10 November", "28 Oktober", "1 Oktober"], answer: 1, exp: "Hari Pahlawan diperingati setiap 10 November (Pertempuran Surabaya)", cat: "Mental Ideologi - Bela Negara"},
+            {q: "Organisasi pergerakan nasional pertama di Indonesia adalah?", options: ["Sarekat Islam", "Budi Utomo", "Indische Partij", "PNI"], answer: 1, exp: "Budi Utomo (didirikan 20 Mei 1908) adalah organisasi pergerakan nasional pertama", cat: "Mental Ideologi - Bela Negara"},
+            {q: "Hari Kebangkitan Nasional diperingati setiap tanggal?", options: ["17 Agustus", "20 Mei", "28 Oktober", "1 Juni"], answer: 1, exp: "Hari Kebangkitan Nasional diperingati setiap 20 Mei (berdirinya Budi Utomo)", cat: "Mental Ideologi - Bela Negara"},
+            {q: "Wawasan Nusantara adalah?", options: ["Wilayah Indonesia", "Cara pandang bangsa Indonesia", "Batas negara", "Kedaulatan negara"], answer: 1, exp: "Wawasan Nusantara adalah cara pandang bangsa Indonesia tentang diri dan lingkungannya", cat: "Mental Ideologi - Bela Negara"},
+            {q: "Sikap rela berkorban untuk bangsa dan negara disebut?", options: ["Nasionalisme", "Patriotisme", "Heroisme", "Militarisme"], answer: 1, exp: "Patriotisme adalah sikap rela berkorban untuk kepentingan bangsa dan negara", cat: "Mental Ideologi - Bela Negara"},
+            
+            // Integritas (8 soal)
+            {q: "Lembaga pemberantasan korupsi di Indonesia adalah?", options: ["KPU", "KPK", "BPK", "BPKP"], answer: 1, exp: "KPK (Komisi Pemberantasan Korupsi) adalah lembaga anti korupsi di Indonesia", cat: "Mental Ideologi - Integritas"},
+            {q: "UU Pemberantasan Tindak Pidana Korupsi adalah?", options: ["UU No. 20 Tahun 2001", "UU No. 31 Tahun 1999 jo UU No. 20 Tahun 2001", "UU No. 28 Tahun 1999", "UU No. 30 Tahun 2002"], answer: 1, exp: "UU Tipikor adalah UU No. 31 Tahun 1999 sebagaimana diubah dengan UU No. 20 Tahun 2001", cat: "Mental Ideologi - Integritas"},
+            {q: "Integritas berarti?", options: ["Jujur dalam bekerja", "Keselarasan antara ucapan dan perbuatan", "Tidak korupsi", "Disiplin"], answer: 1, exp: "Integritas adalah keselarasan antara nilai, ucapan, dan perbuatan", cat: "Mental Ideologi - Integritas"},
+            {q: "Gratifikasi yang diterima pejabat harus?", options: ["Disimpan sendiri", "Dilaporkan semua", "Dilaporkan jika di atas Rp 10 juta", "Tidak perlu dilaporkan"], answer: 1, exp: "Semua gratifikasi wajib dilaporkan kepada KPK, apapun nilainya", cat: "Mental Ideologi - Integritas"},
+            {q: "Yang termasuk tindak pidana korupsi adalah?", options: ["Mencuri di pasar", "Menyuap pejabat", "Tidak membayar pajak", "Melanggar lalu lintas"], answer: 1, exp: "Menyuap pejabat publik termasuk tindak pidana korupsi", cat: "Mental Ideologi - Integritas"},
+            {q: "Prinsip good governance yang berkaitan dengan keterbukaan informasi adalah?", options: ["Akuntabilitas", "Transparansi", "Responsivitas", "Efektivitas"], answer: 1, exp: "Transparansi adalah prinsip keterbukaan informasi dalam penyelenggaraan pemerintahan", cat: "Mental Ideologi - Integritas"},
+            {q: "Whistle-blower adalah?", options: ["Koruptor", "Pelapor tindak pidana", "Penyidik", "Hakim"], answer: 1, exp: "Whistle-blower adalah pelapor tindak pidana yang mendapat perlindungan hukum", cat: "Mental Ideologi - Integritas"},
+            {q: "Jika menghadapi konflik kepentingan, seorang ASN harus?", options: ["Mengambil keuntungan", "Mengundurkan diri dari situasi tersebut", "Merahasiakan", "Meminta izin atasan"], answer: 1, exp: "ASN harus mengundurkan diri dari situasi yang menimbulkan konflik kepentingan", cat: "Mental Ideologi - Integritas"},
+            
+            // Wawasan Kebangsaan (8 soal)
+            {q: "Sumpah Pemuda dikumandangkan pada tanggal?", options: ["17 Agustus 1945", "20 Mei 1908", "28 Oktober 1928", "1 Juni 1945"], answer: 2, exp: "Sumpah Pemuda dikumandangkan pada 28 Oktober 1928", cat: "Mental Ideologi - Wawasan Kebangsaan"},
+            {q: "Isi Sumpah Pemuda yang ketiga adalah?", options: ["Bertanah air satu", "Berbangsa satu", "Menjunjung bahasa persatuan, bahasa Indonesia", "Bersatu dalam perbedaan"], answer: 2, exp: "Sumpah ketiga: 'Kami putra dan putri Indonesia menjunjung bahasa persatuan, bahasa Indonesia'", cat: "Mental Ideologi - Wawasan Kebangsaan"},
+            {q: "Proklamasi kemerdekaan dibacakan di?", options: ["Istana Merdeka", "Jalan Pegangsaan Timur No. 56", "Gedung Pancasila", "Rengasdengklok"], answer: 1, exp: "Proklamasi dibacakan di Jalan Pegangsaan Timur No. 56, Jakarta", cat: "Mental Ideologi - Wawasan Kebangsaan"},
+            {q: "Konferensi Asia-Afrika (KAA) diselenggarakan di kota?", options: ["Jakarta", "Bandung", "Bogor", "Yogyakarta"], answer: 1, exp: "KAA diselenggarakan di Bandung pada 18-24 April 1955", cat: "Mental Ideologi - Wawasan Kebangsaan"},
+            {q: "Politik luar negeri Indonesia adalah?", options: ["Blok Barat", "Blok Timur", "Bebas Aktif", "Non-Blok"], answer: 2, exp: "Indonesia menganut politik luar negeri bebas aktif", cat: "Mental Ideologi - Wawasan Kebangsaan"},
+            {q: "BPUPKI dalam sidang pertamanya membahas tentang?", options: ["Bentuk negara", "Dasar negara", "Wilayah negara", "Sistem pemerintahan"], answer: 1, exp: "Sidang pertama BPUPKI (29 Mei - 1 Juni 1945) membahas dasar negara", cat: "Mental Ideologi - Wawasan Kebangsaan"},
+            {q: "Naskah proklamasi diketik oleh?", options: ["Soekarno", "Hatta", "Sayuti Melik", "Sukarni"], answer: 2, exp: "Naskah proklamasi diketik oleh Sayuti Melik", cat: "Mental Ideologi - Wawasan Kebangsaan"},
+            {q: "ASEAN didirikan pada tanggal?", options: ["17 Agustus 1945", "18 April 1955", "8 Agustus 1967", "28 Oktober 1928"], answer: 2, exp: "ASEAN didirikan pada 8 Agustus 1967 di Bangkok, Thailand", cat: "Mental Ideologi - Wawasan Kebangsaan"}
+        ];
+
+        const soalTKB = [
+            {q: "UU yang mengatur tentang perkoperasian di Indonesia adalah?", options: ["UU No. 17 Tahun 2012", "UU No. 25 Tahun 1992", "UU No. 20 Tahun 2008", "UU No. 40 Tahun 2007"], answer: 1, exp: "Perkoperasian diatur dalam UU No. 25 Tahun 1992 tentang Perkoperasian", cat: "TKB - Koperasi"},
+            {q: "Tujuan utama koperasi adalah?", options: ["Mencari keuntungan maksimal", "Kesejahteraan anggota", "Bersaing dengan perusahaan", "Menguasai pasar"], answer: 1, exp: "Tujuan koperasi adalah meningkatkan kesejahteraan anggota dan masyarakat", cat: "TKB - Koperasi"},
+            {q: "Kekuasaan tertinggi dalam koperasi berada di tangan?", options: ["Pengurus", "Pengawas", "Rapat Anggota", "Ketua"], answer: 2, exp: "Rapat Anggota adalah pemegang kekuasaan tertinggi dalam koperasi", cat: "TKB - Koperasi"},
+            {q: "Yang bukan termasuk prinsip koperasi menurut ICA adalah?", options: ["Keanggotaan sukarela", "Pengelolaan demokratis", "Monopoli usaha", "Pendidikan dan pelatihan"], answer: 2, exp: "Monopoli usaha bukan prinsip koperasi. Koperasi mengedepankan kerjasama, bukan monopoli", cat: "TKB - Koperasi"},
+            {q: "Koperasi yang kegiatan usahanya pinjam-meminjam disebut?", options: ["Koperasi Konsumen", "Koperasi Produsen", "Koperasi Simpan Pinjam", "Koperasi Jasa"], answer: 2, exp: "Koperasi Simpan Pinjam (KSP) fokus pada kegiatan pinjam-meminjam untuk anggota", cat: "TKB - Koperasi"},
+            {q: "Pembagian Sisa Hasil Usaha (SHU) koperasi berdasarkan?", options: ["Jumlah anggota", "Simpanan dan partisipasi usaha", "Jabatan dalam koperasi", "Lama menjadi anggota"], answer: 1, exp: "SHU dibagi berdasarkan besarnya simpanan dan partisipasi usaha anggota", cat: "TKB - Koperasi"},
+            {q: "Simpanan yang dibayarkan sekali saat menjadi anggota disebut?", options: ["Simpanan Pokok", "Simpanan Wajib", "Simpanan Sukarela", "Modal Penyertaan"], answer: 0, exp: "Simpanan Pokok dibayar sekali saat masuk menjadi anggota koperasi", cat: "TKB - Koperasi"},
+            {q: "Tugas pengawas koperasi adalah?", options: ["Mengelola usaha", "Mengambil keputusan", "Melakukan kontrol dan pengawasan", "Membagi SHU"], answer: 2, exp: "Pengawas bertugas melakukan pengawasan terhadap pelaksanaan kebijakan dan pengelolaan koperasi", cat: "TKB - Koperasi"},
+            {q: "Koperasi yang anggotanya para produsen disebut?", options: ["Koperasi Konsumen", "Koperasi Produsen", "Koperasi Simpan Pinjam", "Koperasi Serba Usaha"], answer: 1, exp: "Koperasi Produsen adalah koperasi yang anggotanya para produsen barang/jasa", cat: "TKB - Koperasi"},
+            {q: "Modal koperasi yang berasal dari anggota adalah?", options: ["Simpanan Pokok", "Pinjaman Bank", "Hibah", "Obligasi"], answer: 0, exp: "Simpanan Pokok dan Simpanan Wajib adalah modal internal dari anggota", cat: "TKB - Koperasi"},
+            {q: "Simpanan yang dibayar secara rutin setiap bulan disebut?", options: ["Simpanan Pokok", "Simpanan Wajib", "Simpanan Sukarela", "Tabungan"], answer: 1, exp: "Simpanan Wajib dibayar secara rutin (biasanya bulanan) oleh anggota", cat: "TKB - Koperasi"},
+            {q: "Peran koperasi dalam perekonomian Indonesia adalah?", options: ["Menguasai pasar", "Meningkatkan ekonomi rakyat", "Bersaing dengan BUMN", "Monopoli perdagangan"], answer: 1, exp: "Koperasi berperan meningkatkan ekonomi rakyat dan pemerataan pendapatan", cat: "TKB - Koperasi"},
+            {q: "Prinsip 'one member one vote' dalam koperasi berarti?", options: ["Satu anggota satu suara", "Demokratis", "Kesetaraan hak", "Semua benar"], answer: 3, exp: "Prinsip ini mencerminkan demokrasi dan kesetaraan hak suara dalam koperasi", cat: "TKB - Koperasi"},
+            {q: "Koperasi yang menjual kebutuhan sehari-hari anggota disebut?", options: ["Koperasi Produsen", "Koperasi Konsumen", "Koperasi Simpan Pinjam", "Koperasi Jasa"], answer: 1, exp: "Koperasi Konsumen menyediakan barang kebutuhan untuk anggota", cat: "TKB - Koperasi"},
+            {q: "Nilai koperasi yang menekankan keterbukaan adalah?", options: ["Kejujuran", "Transparansi", "Tanggung jawab", "Kepedulian"], answer: 1, exp: "Transparansi adalah nilai keterbukaan dalam pengelolaan koperasi", cat: "TKB - Koperasi"},
+            {q: "Sebagian SHU koperasi dialokasikan untuk?", options: ["Dibagi habis ke anggota", "Dana Cadangan", "Bonus pengurus", "Investasi saham"], answer: 1, exp: "Sebagian SHU wajib dialokasikan untuk Dana Cadangan koperasi", cat: "TKB - Koperasi"},
+            {q: "Yang menjalankan operasional koperasi sehari-hari adalah?", options: ["Rapat Anggota", "Pengurus", "Pengawas", "Manajer"], answer: 1, exp: "Pengurus bertanggung jawab menjalankan operasional dan manajemen koperasi", cat: "TKB - Koperasi"},
+            {q: "Contoh koperasi jasa adalah?", options: ["Koperasi Susu", "Koperasi Angkutan", "Koperasi Toko", "Koperasi Simpan Pinjam"], answer: 1, exp: "Koperasi Angkutan adalah contoh koperasi yang bergerak di bidang jasa", cat: "TKB - Koperasi"},
+            {q: "Koperasi mendukung pengembangan?", options: ["Perusahaan besar", "UMKM", "Korporasi", "Multinasional"], answer: 1, exp: "Koperasi berperan mendukung dan mengembangkan UMKM", cat: "TKB - Koperasi"},
+            {q: "Asas koperasi Indonesia adalah?", options: ["Liberalisme", "Kapitalisme", "Kekeluargaan", "Individualisme"], answer: 2, exp: "Koperasi Indonesia berasaskan kekeluargaan sesuai Pasal 33 UUD 1945", cat: "TKB - Koperasi"},
+            {q: "Yang bukan prinsip koperasi adalah?", options: ["Keanggotaan terbuka", "Pengelolaan demokratis", "Memaksimalkan keuntungan", "Pendidikan anggota"], answer: 2, exp: "Koperasi tidak bertujuan memaksimalkan keuntungan, tapi kesejahteraan anggota", cat: "TKB - Koperasi"},
+            {q: "Bapak Koperasi Indonesia adalah?", options: ["Soekarno", "Mohammad Hatta", "Soeharto", "Sjahrir"], answer: 1, exp: "Mohammad Hatta dikenal sebagai Bapak Koperasi Indonesia", cat: "TKB - Koperasi"},
+            {q: "Hari Koperasi Nasional diperingati setiap tanggal?", options: ["17 Agustus", "12 Juli", "20 Mei", "1 Oktober"], answer: 1, exp: "Hari Koperasi diperingati setiap 12 Juli", cat: "TKB - Koperasi"},
+            {q: "Koperasi pertama di Indonesia didirikan oleh?", options: ["Mohammad Hatta", "R. Aria Wiriatmadja", "Soekarno", "Soeharto"], answer: 1, exp: "R. Aria Wiriatmadja mendirikan koperasi pertama di Indonesia (1896)", cat: "TKB - Koperasi"},
+            {q: "Yang bukan termasuk modal sendiri koperasi adalah?", options: ["Simpanan Pokok", "Simpanan Wajib", "Pinjaman Bank", "Dana Cadangan"], answer: 2, exp: "Pinjaman Bank adalah modal pinjaman, bukan modal sendiri", cat: "TKB - Koperasi"},
+            {q: "Pengurus koperasi dipilih oleh?", options: ["Pengawas", "Rapat Anggota", "Pemerintah", "Ketua sebelumnya"], answer: 1, exp: "Pengurus dipilih dan diberhentikan oleh Rapat Anggota", cat: "TKB - Koperasi"},
+            {q: "Masa jabatan pengurus koperasi biasanya?", options: ["2 tahun", "3 tahun", "5 tahun", "Seumur hidup"], answer: 2, exp: "Masa jabatan pengurus umumnya 5 tahun sesuai AD/ART", cat: "TKB - Koperasi"},
+            {q: "Koperasi sekunder adalah koperasi yang anggotanya?", options: ["Perorangan", "Badan hukum koperasi", "Perusahaan", "Pemerintah"], answer: 1, exp: "Koperasi sekunder beranggotakan badan hukum koperasi", cat: "TKB - Koperasi"},
+            {q: "Pembagian jasa modal dalam koperasi berdasarkan?", options: ["Jabatan", "Besar simpanan", "Lama menjadi anggota", "Keaktifan"], answer: 1, exp: "Jasa modal dibagi berdasarkan besarnya simpanan anggota", cat: "TKB - Koperasi"},
+            {q: "KUD adalah singkatan dari?", options: ["Koperasi Unit Daerah", "Koperasi Unit Desa", "Koperasi Usaha Desa", "Koperasi Serba Usaha"], answer: 1, exp: "KUD adalah Koperasi Unit Desa yang bersifat serba usaha", cat: "TKB - Koperasi"},
+            {q: "Yang bukan ciri khas koperasi adalah?", options: ["Berorientasi pada anggota", "Demokratis", "Laba maksimal", "Kekeluargaan"], answer: 2, exp: "Koperasi tidak berorientasi pada laba maksimal, tapi kesejahteraan anggota", cat: "TKB - Koperasi"},
+            {q: "Koperasi induk terbentuk dari minimal?", options: ["2 gabungan koperasi", "3 gabungan koperasi", "4 gabungan koperasi", "5 gabungan koperasi"], answer: 1, exp: "Koperasi induk terbentuk dari minimal 3 gabungan koperasi", cat: "TKB - Koperasi"},
+            {q: "Landasan idiil koperasi Indonesia adalah?", options: ["UUD 1945", "Pancasila", "UU Koperasi", "Pasal 33"], answer: 1, exp: "Landasan idiil koperasi Indonesia adalah Pancasila", cat: "TKB - Koperasi"},
+            {q: "Landasan struktural koperasi Indonesia adalah?", options: ["Pancasila", "UUD 1945 Pasal 33", "UU No. 25/1992", "Tap MPR"], answer: 1, exp: "Landasan struktural adalah UUD 1945 Pasal 33 tentang perekonomian", cat: "TKB - Koperasi"},
+            {q: "Koperasi sekolah disebut juga?", options: ["Kopsis", "Kopkar", "KUD", "Primkop"], answer: 0, exp: "Koperasi Sekolah disingkat Kopsis", cat: "TKB - Koperasi"},
+            {q: "Sebagian SHU dialokasikan untuk?", options: ["Dana Sosial", "Dana Pendidikan", "Dana Kesehatan", "Semua benar"], answer: 1, exp: "Sebagian SHU dialokasikan untuk Dana Pendidikan anggota dan koperasi", cat: "TKB - Koperasi"},
+            {q: "Dalam koperasi, setiap anggota memiliki hak suara yang?", options: ["Berbeda sesuai simpanan", "Sama rata", "Sesuai jabatan", "Sesuai lama bergabung"], answer: 1, exp: "Prinsip one member one vote: setiap anggota punya hak suara yang sama", cat: "TKB - Koperasi"},
+            {q: "Pendirian koperasi primer minimal memerlukan?", options: ["10 orang", "15 orang", "20 orang", "25 orang"], answer: 2, exp: "Koperasi primer didirikan minimal oleh 20 orang", cat: "TKB - Koperasi"},
+            {q: "Usaha koperasi harus sesuai dengan?", options: ["Keuntungan maksimal", "Kebutuhan anggota", "Permintaan pasar", "Kebijakan pemerintah"], answer: 1, exp: "Usaha koperasi harus sesuai dengan kebutuhan dan kepentingan anggota", cat: "TKB - Koperasi"},
+            {q: "Contoh koperasi produsen adalah?", options: ["Koperasi toko", "Koperasi susu peternak sapi", "Koperasi simpan pinjam", "Koperasi angkutan"], answer: 1, exp: "Koperasi susu peternak adalah contoh koperasi produsen", cat: "TKB - Koperasi"},
+            {q: "Perbedaan utama koperasi dengan PT adalah?", options: ["Modal", "Anggota", "Prinsip demokratis", "Badan hukum"], answer: 2, exp: "Koperasi menerapkan prinsip demokratis (one member one vote), PT berdasarkan saham", cat: "TKB - Koperasi"},
+            {q: "Laporan SHU koperasi disebut?", options: ["Laporan Laba Rugi", "Laporan PHU", "Laporan Keuangan", "Neraca"], answer: 1, exp: "Laporan SHU dalam koperasi disebut Laporan Perhitungan Hasil Usaha (PHU)", cat: "TKB - Koperasi"},
+            {q: "Tanggung jawab anggota koperasi terbatas pada?", options: ["Seluruh harta pribadi", "Simpanan yang disetor", "Tidak ada tanggung jawab", "Sesuai jabatan"], answer: 1, exp: "Tanggung jawab anggota terbatas pada simpanan yang telah disetor", cat: "TKB - Koperasi"},
+            {q: "Struktur organisasi koperasi terdiri dari?", options: ["Direktur-Komisaris", "RAT-Pengurus-Pengawas", "Pemegang Saham-Direksi", "Owner-Manager"], answer: 1, exp: "Struktur koperasi: Rapat Anggota, Pengurus, dan Pengawas", cat: "TKB - Koperasi"},
+            {q: "Simpanan yang bersifat tidak mengikat disebut?", options: ["Simpanan Pokok", "Simpanan Wajib", "Simpanan Sukarela", "Modal Penyertaan"], answer: 2, exp: "Simpanan Sukarela bersifat tidak mengikat dan dapat diambil sewaktu-waktu", cat: "TKB - Koperasi"},
+            {q: "Tujuan pendidikan dalam koperasi adalah?", options: ["Mencari keuntungan", "Meningkatkan pengetahuan perkoperasian", "Menambah anggota", "Bersaing dengan perusahaan"], answer: 1, exp: "Pendidikan bertujuan meningkatkan pengetahuan dan keterampilan perkoperasian", cat: "TKB - Koperasi"},
+            {q: "Jika koperasi rugi, kerugian ditutup dari?", options: ["Simpanan anggota", "Dana Cadangan", "Pinjaman bank", "Pemerintah"], answer: 1, exp: "Kerugian koperasi ditutup dari Dana Cadangan", cat: "TKB - Koperasi"},
+            {q: "Keputusan Rapat Anggota diambil berdasarkan?", options: ["Suara terbanyak", "Musyawarah untuk mufakat", "Keputusan ketua", "Musyawarah atau suara terbanyak"], answer: 3, exp: "Keputusan RAT diambil berdasarkan musyawarah mufakat atau suara terbanyak", cat: "TKB - Koperasi"},
+            {q: "Koperasi memperoleh badan hukum setelah?", options: ["Didirikan", "Akta notaris dibuat", "Akta disahkan pemerintah", "Rapat Anggota pertama"], answer: 2, exp: "Koperasi berbadan hukum setelah akta pendirian disahkan oleh pemerintah", cat: "TKB - Koperasi"},
+            {q: "Kesejahteraan anggota koperasi dicapai melalui?", options: ["Pembagian dividen", "Pelayanan usaha dan SHU", "Bonus tahunan", "Gaji tetap"], answer: 1, exp: "Kesejahteraan anggota dicapai melalui pelayanan usaha yang baik dan pembagian SHU", cat: "TKB - Koperasi"}
+        ];
+
+        const materiBelajar = [
+            {
+                id: 'pancasila',
+                title: 'Pancasila',
+                content: `
+                    <h3>Pengertian Pancasila</h3>
+                    <p>Pancasila adalah dasar negara Indonesia yang terdiri dari lima sila. Pancasila disahkan pada 18 Agustus 1945 oleh PPKI.</p>
+                    
+                    <h3>Lima Sila Pancasila</h3>
+                    <ul>
+                        <li><strong>Sila 1:</strong> Ketuhanan Yang Maha Esa (Lambang: Bintang)</li>
+                        <li><strong>Sila 2:</strong> Kemanusiaan yang Adil dan Beradab (Lambang: Rantai)</li>
+                        <li><strong>Sila 3:</strong> Persatuan Indonesia (Lambang: Pohon Beringin)</li>
+                        <li><strong>Sila 4:</strong> Kerakyatan yang Dipimpin oleh Hikmat Kebijaksanaan dalam Permusyawaratan/Perwakilan (Lambang: Kepala Banteng)</li>
+                        <li><strong>Sila 5:</strong> Keadilan Sosial bagi Seluruh Rakyat Indonesia (Lambang: Padi dan Kapas)</li>
+                    </ul>
+                    
+                    <h3>Fungsi Pancasila</h3>
+                    <ul>
+                        <li>Dasar negara Indonesia</li>
+                        <li>Pandangan hidup bangsa</li>
+                        <li>Ideologi nasional</li>
+                        <li>Sumber dari segala sumber hukum</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'uud1945',
+                title: 'UUD 1945',
+                content: `
+                    <h3>Tentang UUD 1945</h3>
+                    <p>UUD 1945 adalah konstitusi negara Indonesia yang disahkan pada 18 Agustus 1945.</p>
+                    
+                    <h3>Struktur UUD 1945</h3>
+                    <ul>
+                        <li>Pembukaan (4 alinea)</li>
+                        <li>Pasal-pasal (37 pasal setelah amandemen)</li>
+                        <li>Aturan Peralihan</li>
+                        <li>Aturan Tambahan</li>
+                    </ul>
+                    
+                    <h3>Amandemen UUD 1945</h3>
+                    <p>UUD 1945 telah diamandemen 4 kali:</p>
+                    <ul>
+                        <li>Amandemen I: 1999</li>
+                        <li>Amandemen II: 2000</li>
+                        <li>Amandemen III: 2001</li>
+                        <li>Amandemen IV: 2002</li>
+                    </ul>
+                    
+                    <h3>Pasal-Pasal Penting</h3>
+                    <ul>
+                        <li><strong>Pasal 1(1):</strong> Negara Indonesia adalah negara kesatuan berbentuk republik</li>
+                        <li><strong>Pasal 1(2):</strong> Kedaulatan berada di tangan rakyat</li>
+                        <li><strong>Pasal 27(3):</strong> Hak dan kewajiban bela negara</li>
+                        <li><strong>Pasal 31:</strong> Hak atas pendidikan</li>
+                        <li><strong>Pasal 33:</strong> Perekonomian nasional</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'nkri',
+                title: 'NKRI',
+                content: `
+                    <h3>Negara Kesatuan Republik Indonesia</h3>
+                    <p>Indonesia adalah negara kesatuan yang berbentuk republik dengan sistem pemerintahan presidensial.</p>
+                    
+                    <h3>Bhinneka Tunggal Ika</h3>
+                    <ul>
+                        <li>Arti: Berbeda-beda tetapi tetap satu</li>
+                        <li>Berasal dari kitab Sutasoma karya Mpu Tantular</li>
+                        <li>Melambangkan persatuan dalam keberagaman</li>
+                    </ul>
+                    
+                    <h3>Wilayah Indonesia</h3>
+                    <ul>
+                        <li>Membentang dari Sabang sampai Merauke</li>
+                        <li>38 provinsi (2024)</li>
+                        <li>Lebih dari 1.300 suku bangsa</li>
+                        <li>Lebih dari 700 bahasa daerah</li>
+                    </ul>
+                    
+                    <h3>Simbol Negara</h3>
+                    <ul>
+                        <li><strong>Bendera:</strong> Merah Putih</li>
+                        <li><strong>Lambang:</strong> Garuda Pancasila</li>
+                        <li><strong>Lagu Kebangsaan:</strong> Indonesia Raya (W.R. Supratman)</li>
+                        <li><strong>Bahasa:</strong> Bahasa Indonesia</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'belanegara',
+                title: 'Bela Negara',
+                content: `
+                    <h3>Pengertian Bela Negara</h3>
+                    <p>Bela negara adalah sikap dan perilaku warga negara yang dijiwai oleh kecintaannya kepada NKRI berdasarkan Pancasila dan UUD 1945.</p>
+                    
+                    <h3>Dasar Hukum</h3>
+                    <ul>
+                        <li>Pasal 27 ayat (3) UUD 1945</li>
+                        <li>Pasal 30 ayat (1) UUD 1945</li>
+                        <li>UU No. 3 Tahun 2002 tentang Pertahanan Negara</li>
+                    </ul>
+                    
+                    <h3>Bentuk Bela Negara</h3>
+                    <ul>
+                        <li>Bagi pelajar: Belajar dengan sungguh-sungguh</li>
+                        <li>Bagi pekerja: Bekerja dengan profesional</li>
+                        <li>Menjaga persatuan dan kesatuan</li>
+                        <li>Melestarikan budaya bangsa</li>
+                        <li>Taat hukum dan peraturan</li>
+                    </ul>
+                    
+                    <h3>Hari-Hari Penting</h3>
+                    <ul>
+                        <li><strong>20 Mei:</strong> Hari Kebangkitan Nasional (Budi Utomo 1908)</li>
+                        <li><strong>28 Oktober:</strong> Hari Sumpah Pemuda (1928)</li>
+                        <li><strong>10 November:</strong> Hari Pahlawan</li>
+                        <li><strong>19 Desember:</strong> Hari Bela Negara</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'integritas',
+                title: 'Integritas & Anti Korupsi',
+                content: `
+                    <h3>Pengertian Integritas</h3>
+                    <p>Integritas adalah keselarasan antara nilai, ucapan, dan perbuatan. Seseorang yang berintegritas adalah orang yang jujur, konsisten, dan dapat dipercaya.</p>
+                    
+                    <h3>Korupsi</h3>
+                    <p>Korupsi adalah tindakan penyalahgunaan wewenang untuk kepentingan pribadi.</p>
+                    
+                    <h3>Lembaga Anti Korupsi</h3>
+                    <ul>
+                        <li><strong>KPK:</strong> Komisi Pemberantasan Korupsi</li>
+                        <li><strong>BPK:</strong> Badan Pemeriksa Keuangan</li>
+                        <li><strong>BPKP:</strong> Badan Pengawasan Keuangan dan Pembangunan</li>
+                    </ul>
+                    
+                    <h3>Prinsip Good Governance</h3>
+                    <ul>
+                        <li>Transparansi (keterbukaan)</li>
+                        <li>Akuntabilitas (pertanggungjawaban)</li>
+                        <li>Responsivitas (daya tanggap)</li>
+                        <li>Efektivitas dan efisiensi</li>
+                        <li>Partisipasi</li>
+                    </ul>
+                    
+                    <h3>Gratifikasi</h3>
+                    <p>Semua gratifikasi yang diterima pejabat publik wajib dilaporkan kepada KPK, apapun nilainya.</p>
+                `
+            },
+            {
+                id: 'koperasi-dasar',
+                title: 'Dasar-Dasar Koperasi',
+                content: `
+                    <h3>Pengertian Koperasi</h3>
+                    <p>Koperasi adalah badan usaha yang beranggotakan orang-seorang atau badan hukum koperasi dengan melandaskan kegiatannya berdasarkan prinsip koperasi sekaligus sebagai gerakan ekonomi rakyat yang berdasar atas asas kekeluargaan.</p>
+                    
+                    <h3>Landasan Koperasi</h3>
+                    <ul>
+                        <li><strong>Landasan Idiil:</strong> Pancasila</li>
+                        <li><strong>Landasan Struktural:</strong> UUD 1945 Pasal 33</li>
+                        <li><strong>Landasan Operasional:</strong> UU No. 25 Tahun 1992</li>
+                    </ul>
+                    
+                    <h3>Asas dan Tujuan</h3>
+                    <ul>
+                        <li><strong>Asas:</strong> Kekeluargaan</li>
+                        <li><strong>Tujuan:</strong> Meningkatkan kesejahteraan anggota dan masyarakat</li>
+                    </ul>
+                    
+                    <h3>Bapak Koperasi</h3>
+                    <p>Mohammad Hatta dikenal sebagai Bapak Koperasi Indonesia. Hari Koperasi diperingati setiap 12 Juli.</p>
+                `
+            },
+            {
+                id: 'prinsip-koperasi',
+                title: 'Prinsip Koperasi',
+                content: `
+                    <h3>7 Prinsip Koperasi (ICA)</h3>
+                    <ul>
+                        <li><strong>1. Keanggotaan Sukarela dan Terbuka</strong><br>Koperasi terbuka bagi semua orang tanpa diskriminasi</li>
+                        <li><strong>2. Pengendalian oleh Anggota secara Demokratis</strong><br>One member one vote - setiap anggota punya hak suara yang sama</li>
+                        <li><strong>3. Partisipasi Ekonomi Anggota</strong><br>Anggota berkontribusi secara adil dan mengontrol modal koperasi</li>
+                        <li><strong>4. Otonomi dan Kemandirian</strong><br>Koperasi adalah organisasi otonom yang dikendalikan anggota</li>
+                        <li><strong>5. Pendidikan, Pelatihan, dan Informasi</strong><br>Koperasi memberikan pendidikan kepada anggota dan masyarakat</li>
+                        <li><strong>6. Kerjasama Antar Koperasi</strong><br>Koperasi bekerja sama untuk memperkuat gerakan koperasi</li>
+                        <li><strong>7. Kepedulian terhadap Komunitas</strong><br>Koperasi bekerja untuk pembangunan berkelanjutan komunitas</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'organisasi-koperasi',
+                title: 'Organisasi Koperasi',
+                content: `
+                    <h3>Struktur Organisasi Koperasi</h3>
+                    
+                    <h4>1. Rapat Anggota</h4>
+                    <ul>
+                        <li>Pemegang kekuasaan tertinggi</li>
+                        <li>Memilih dan memberhentikan pengurus dan pengawas</li>
+                        <li>Menetapkan kebijakan umum</li>
+                        <li>Mengesahkan pertanggungjawaban pengurus</li>
+                    </ul>
+                    
+                    <h4>2. Pengurus</h4>
+                    <ul>
+                        <li>Mengelola koperasi sehari-hari</li>
+                        <li>Mengajukan rancangan program kerja dan RAPB</li>
+                        <li>Menyelenggarakan Rapat Anggota</li>
+                        <li>Masa jabatan: 5 tahun</li>
+                    </ul>
+                    
+                    <h4>3. Pengawas</h4>
+                    <ul>
+                        <li>Melakukan pengawasan terhadap pelaksanaan kebijakan</li>
+                        <li>Membuat laporan tertulis tentang hasil pengawasan</li>
+                        <li>Meneliti catatan dan fisik kekayaan koperasi</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'modal-koperasi',
+                title: 'Modal Koperasi',
+                content: `
+                    <h3>Sumber Modal Koperasi</h3>
+                    
+                    <h4>Modal Sendiri</h4>
+                    <ul>
+                        <li><strong>Simpanan Pokok:</strong> Dibayar sekali saat menjadi anggota, tidak dapat diambil selama masih menjadi anggota</li>
+                        <li><strong>Simpanan Wajib:</strong> Dibayar secara rutin (biasanya bulanan), dapat diambil saat keluar dari keanggotaan</li>
+                        <li><strong>Simpanan Sukarela:</strong> Bersifat tidak mengikat, dapat diambil sewaktu-waktu</li>
+                        <li><strong>Dana Cadangan:</strong> Berasal dari penyisihan SHU</li>
+                        <li><strong>Hibah:</strong> Pemberian dari pihak lain</li>
+                    </ul>
+                    
+                    <h4>Modal Pinjaman</h4>
+                    <ul>
+                        <li>Pinjaman dari anggota</li>
+                        <li>Pinjaman dari koperasi lain</li>
+                        <li>Pinjaman dari bank</li>
+                        <li>Obligasi atau surat hutang lainnya</li>
+                    </ul>
+                    
+                    <h3>Tanggung Jawab Anggota</h3>
+                    <p>Tanggung jawab anggota koperasi terbatas pada simpanan yang telah disetor.</p>
+                `
+            },
+            {
+                id: 'shu',
+                title: 'Sisa Hasil Usaha (SHU)',
+                content: `
+                    <h3>Pengertian SHU</h3>
+                    <p>SHU adalah pendapatan koperasi yang diperoleh dalam satu tahun buku dikurangi dengan biaya, penyusutan, dan kewajiban lainnya termasuk pajak.</p>
+                    
+                    <h3>Pembagian SHU</h3>
+                    <p>SHU dibagi berdasarkan:</p>
+                    <ul>
+                        <li>Besarnya simpanan anggota</li>
+                        <li>Besarnya partisipasi usaha (transaksi) anggota</li>
+                    </ul>
+                    
+                    <h3>Alokasi SHU</h3>
+                    <ul>
+                        <li>Dana Cadangan</li>
+                        <li>Jasa Anggota (simpanan dan transaksi)</li>
+                        <li>Dana Pengurus</li>
+                        <li>Dana Karyawan</li>
+                        <li>Dana Pendidikan</li>
+                        <li>Dana Sosial</li>
+                        <li>Dana Pembangunan Daerah Kerja</li>
+                    </ul>
+                    
+                    <h3>Perbedaan SHU dengan Laba</h3>
+                    <ul>
+                        <li>SHU dibagi berdasarkan partisipasi, laba dibagi berdasarkan modal</li>
+                        <li>SHU untuk kesejahteraan anggota, laba untuk pemilik modal</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'jenis-koperasi',
+                title: 'Jenis-Jenis Koperasi',
+                content: `
+                    <h3>Berdasarkan Jenis Usaha</h3>
+                    
+                    <h4>1. Koperasi Konsumen</h4>
+                    <ul>
+                        <li>Menyediakan barang kebutuhan anggota</li>
+                        <li>Contoh: Koperasi toko, koperasi warung</li>
+                    </ul>
+                    
+                    <h4>2. Koperasi Produsen</h4>
+                    <ul>
+                        <li>Anggotanya para produsen</li>
+                        <li>Contoh: Koperasi susu, koperasi kerajinan</li>
+                    </ul>
+                    
+                    <h4>3. Koperasi Simpan Pinjam (KSP)</h4>
+                    <ul>
+                        <li>Kegiatan utama: simpan pinjam</li>
+                        <li>Memberikan pinjaman dengan bunga rendah</li>
+                    </ul>
+                    
+                    <h4>4. Koperasi Jasa</h4>
+                    <ul>
+                        <li>Memberikan pelayanan jasa</li>
+                        <li>Contoh: Koperasi angkutan, koperasi asuransi</li>
+                    </ul>
+                    
+                    <h4>5. Koperasi Serba Usaha (KSU)</h4>
+                    <ul>
+                        <li>Menjalankan berbagai jenis usaha</li>
+                        <li>Contoh: KUD (Koperasi Unit Desa)</li>
+                    </ul>
+                    
+                    <h3>Berdasarkan Tingkatan</h3>
+                    <ul>
+                        <li><strong>Koperasi Primer:</strong> Beranggotakan minimal 20 orang</li>
+                        <li><strong>Koperasi Sekunder:</strong> Beranggotakan badan hukum koperasi (Pusat, Gabungan, Induk)</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'pendirian-koperasi',
+                title: 'Pendirian Koperasi',
+                content: `
+                    <h3>Syarat Pendirian Koperasi Primer</h3>
+                    <ul>
+                        <li>Minimal 20 orang pendiri</li>
+                        <li>Membuat Akta Pendirian</li>
+                        <li>Menyusun Anggaran Dasar dan Anggaran Rumah Tangga (AD/ART)</li>
+                        <li>Mengajukan pengesahan ke Kementerian Koperasi</li>
+                    </ul>
+                    
+                    <h3>Badan Hukum</h3>
+                    <p>Koperasi memperoleh status badan hukum setelah akta pendiriannya disahkan oleh pemerintah.</p>
+                    
+                    <h3>Isi AD/ART</h3>
+                    <ul>
+                        <li>Nama dan tempat kedudukan</li>
+                        <li>Landasan, asas, dan tujuan</li>
+                        <li>Kegiatan usaha</li>
+                        <li>Keanggotaan</li>
+                        <li>Rapat Anggota</li>
+                        <li>Pengelolaan (Pengurus dan Pengawas)</li>
+                        <li>Permodalan</li>
+                        <li>Pembagian SHU</li>
+                        <li>Pembubaran</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'koperasi-indonesia',
+                title: 'Koperasi di Indonesia',
+                content: `
+                    <h3>Sejarah Koperasi Indonesia</h3>
+                    <ul>
+                        <li><strong>1896:</strong> R. Aria Wiriatmadja mendirikan koperasi pertama di Purwokerto</li>
+                        <li><strong>1908:</strong> Budi Utomo mendorong gerakan koperasi</li>
+                        <li><strong>1927:</strong> Pembentukan Serikat Dagang Islam</li>
+                        <li><strong>12 Juli 1947:</strong> Kongres Koperasi pertama di Tasikmalaya</li>
+                        <li><strong>1992:</strong> UU No. 25 Tahun 1992 tentang Perkoperasian</li>
+                    </ul>
+                    
+                    <h3>Peran Koperasi</h3>
+                    <ul>
+                        <li>Meningkatkan kesejahteraan anggota dan masyarakat</li>
+                        <li>Memperkuat ekonomi rakyat</li>
+                        <li>Mendukung UMKM</li>
+                        <li>Pemerataan pendapatan</li>
+                        <li>Menciptakan lapangan kerja</li>
+                    </ul>
+                    
+                    <h3>Koperasi Merah Putih</h3>
+                    <p>Program Strategis Nasional untuk mengembangkan koperasi sebagai pilar ekonomi kerakyatan, dengan fokus pada:</p>
+                    <ul>
+                        <li>Pendampingan koperasi desa</li>
+                        <li>Peningkatan kapasitas SDM koperasi</li>
+                        <li>Akses permodalan</li>
+                        <li>Digitalisasi koperasi</li>
+                        <li>Kemitraan dengan BUMN dan swasta</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'tips-iq',
+                title: 'Tips Mengerjakan Soal IQ',
+                content: `
+                    <h3>Deret Angka</h3>
+                    <ul>
+                        <li>Cari pola: aritmatika (+/-), geometri (×/÷), kuadrat, prima, fibonacci</li>
+                        <li>Perhatikan selisih antar angka</li>
+                        <li>Jika bingung, coba hitung mundur dari pilihan jawaban</li>
+                    </ul>
+                    
+                    <h3>Analogi Verbal</h3>
+                    <ul>
+                        <li>Cari hubungan: sinonim, antonim, sebab-akibat, bagian-keseluruhan</li>
+                        <li>Perhatikan fungsi, tempat, atau karakteristik</li>
+                    </ul>
+                    
+                    <h3>Logika & Silogisme</h3>
+                    <ul>
+                        <li>Baca premis dengan teliti</li>
+                        <li>Hati-hati dengan kata "semua", "sebagian", "tidak ada"</li>
+                        <li>Jangan terpengaruh pengetahuan umum, fokus pada premis</li>
+                    </ul>
+                    
+                    <h3>Aritmatika</h3>
+                    <ul>
+                        <li>Baca soal dengan teliti, catat yang diketahui dan ditanya</li>
+                        <li>Gunakan rumus yang tepat</li>
+                        <li>Cek kembali satuan (%, Rp, cm, dll)</li>
+                    </ul>
+                    
+                    <h3>Strategi Umum</h3>
+                    <ul>
+                        <li>Kerjakan yang mudah dulu</li>
+                        <li>Jangan terlalu lama di satu soal (max 90 detik)</li>
+                        <li>Gunakan teknik eliminasi jawaban</li>
+                        <li>Tandai soal yang ragu untuk ditinjau ulang</li>
+                    </ul>
+                `
+            },
+            {
+                id: 'tips-cat',
+                title: 'Tips Menghadapi CAT',
+                content: `
+                    <h3>Persiapan Sebelum Tes</h3>
+                    <ul>
+                        <li>Tidur cukup (minimal 7 jam)</li>
+                        <li>Sarapan bergizi</li>
+                        <li>Datang 30 menit lebih awal</li>
+                        <li>Bawa dokumen lengkap</li>
+                        <li>Pastikan kondisi fisik dan mental prima</li>
+                    </ul>
+                    
+                    <h3>Saat Mengerjakan</h3>
+                    <ul>
+                        <li><strong>Manajemen Waktu:</strong> Rata-rata 36-60 detik per soal</li>
+                        <li><strong>Prioritas:</strong> Kerjakan yang mudah dulu, skip yang sulit</li>
+                        <li><strong>Fokus:</strong> Jangan panik jika ada soal sulit</li>
+                        <li><strong>Teliti:</strong> Baca soal dan pilihan dengan cermat</li>
+                        <li><strong>Jangan Kosong:</strong> Lebih baik menebak daripada tidak dijawab</li>
+                    </ul>
+                    
+                    <h3>Khusus TKP (Tes Karakteristik Pribadi)</h3>
+                    <ul>
+                        <li>Tidak ada jawaban salah, tapi ada skor 1-5</li>
+                        <li>Pilih jawaban yang paling ideal (skor 5)</li>
+                        <li>Hindari jawaban ekstrem negatif</li>
+                        <li>Konsisten dengan nilai-nilai ASN/BUMN</li>
+                        <li>Tunjukkan sikap proaktif, bertanggung jawab, dan berintegritas</li>
+                    </ul>
+                    
+                    <h3>Mental & Psikologis</h3>
+                    <ul>
+                        <li>Tetap tenang dan percaya diri</li>
+                        <li>Jangan terpengaruh peserta lain</li>
+                        <li>Ambil napas dalam jika mulai panik</li>
+                        <li>Fokus pada soal, bukan pada hasil</li>
+                        <li>Berdoa sesuai keyakinan masing-masing</li>
+                    </ul>
+                `
+            }
+        ];
+
+        // Global Variables
+        let currentSession = '';
+        let participantName = '';
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let flaggedQuestions = [];
+        let timeLimit = 0;
+        let timeRemaining = 0;
+        let timerInterval = null;
+        let questionTimerInterval = null;
+        let questionTimeRemaining = 60;
+        let visibilityWarnings = 0;
+        const MAX_WARNINGS = 3;
+        
+        // Utility Functions
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+        
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            
+            if (screenId === 'testScreen') {
+                document.getElementById('header').style.display = 'flex';
+                document.getElementById('questionTimerBar').style.display = 'block';
+            } else {
+                document.getElementById('header').style.display = 'none';
+                document.getElementById('questionTimerBar').style.display = 'none';
+            }
+        }
+        
+        function selectSession(mode) {
+            const nameInput = document.getElementById('nameInput').value.trim();
+            if (!nameInput) {
+                alert('Mohon masukkan nama lengkap Anda terlebih dahulu!');
+                document.getElementById('nameInput').focus();
+                return;
+            }
+            
+            participantName = nameInput;
+            currentSession = mode;
+            initTest(mode);
+        }
+        
+        function initTest(mode) {
+            // Prepare questions based on mode
+            let selectedQuestions = [];
+            
+            if (mode === 'TKD') {
+                // 45 IQ + 45 MI = 90 questions, 90 minutes
+                const shuffledIQ = shuffle(soalIQ).slice(0, 45);
+                const shuffledMI = shuffle(soalMI).slice(0, 45);
+                selectedQuestions = [...shuffledIQ, ...shuffledMI];
+                timeLimit = 90 * 60; // 90 minutes
+                document.getElementById('headerCenter').textContent = 'Sesi TKD';
+            } else if (mode === 'TKB') {
+                // 20 questions from 50, 30 minutes
+                selectedQuestions = shuffle(soalTKB).slice(0, 20);
+                timeLimit = 30 * 60; // 30 minutes
+                document.getElementById('headerCenter').textContent = 'Sesi TKB';
+            } else if (mode === 'FULL') {
+                // All TKD + 20 TKB = 110 questions, 120 minutes
+                const shuffledIQ = shuffle(soalIQ).slice(0, 45);
+                const shuffledMI = shuffle(soalMI).slice(0, 45);
+                const shuffledTKB = shuffle(soalTKB).slice(0, 20);
+                selectedQuestions = [...shuffledIQ, ...shuffledMI, ...shuffledTKB];
+                timeLimit = 120 * 60; // 120 minutes
+                document.getElementById('headerCenter').textContent = 'Sesi Lengkap (TKD + TKB)';
+            }
+            
+            // Shuffle questions and options
+            questions = shuffle(selectedQuestions).map(q => {
+                const shuffledOptions = [];
+                const optionIndices = [0, 1, 2, 3];
+                const shuffledIndices = shuffle(optionIndices);
+                
+                shuffledIndices.forEach(idx => {
+                    shuffledOptions.push(q.options[idx]);
+                });
+                
+                const newAnswerIndex = shuffledIndices.indexOf(q.answer);
+                
+                return {
+                    ...q,
+                    options: shuffledOptions,
+                    answer: newAnswerIndex
+                };
+            });
+            
+            // Initialize user answers and flags
+            userAnswers = new Array(questions.length).fill(null);
+            flaggedQuestions = new Array(questions.length).fill(false);
+            
+            // Set participant name
+            document.getElementById('participantName').textContent = participantName;
+            
+            // Start test
+            timeRemaining = timeLimit;
+            currentQuestionIndex = 0;
+            
+            // Try to enter fullscreen
+            try {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } catch (e) {}
+            
+            // Setup visibility change detection
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            
+            // Show test screen
+            showScreen('testScreen');
+            buildNavigationGrid();
+            loadQuestion(0);
+            startTimer();
+            startQuestionTimer();
+        }
+        
+        function handleVisibilityChange() {
+            if (document.hidden && currentSession) {
+                visibilityWarnings++;
+                const warningBanner = document.getElementById('warningBanner');
+                const warningText = document.getElementById('warningText');
+                
+                if (visibilityWarnings >= MAX_WARNINGS) {
+                    warningText.textContent = `Anda telah keluar dari tab/window sebanyak ${visibilityWarnings} kali. Ujian akan otomatis disubmit!`;
+                    warningBanner.classList.add('active');
+                    setTimeout(() => {
+                        submitTest();
+                    }, 3000);
+                } else {
+                    warningText.textContent = `Peringatan ${visibilityWarnings}/${MAX_WARNINGS}: Jangan keluar dari tab/window ujian!`;
+                    warningBanner.classList.add('active');
+                    setTimeout(() => {
+                        warningBanner.classList.remove('active');
+                    }, 5000);
+                }
+            }
+        }
+        
+        function startTimer() {
+            const timerElement = document.getElementById('timer');
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                
+                const hours = Math.floor(timeRemaining / 3600);
+                const minutes = Math.floor((timeRemaining % 3600) / 60);
+                const seconds = timeRemaining % 60;
+                
+                timerElement.textContent = 
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                
+                // Warning when less than 5 minutes
+                if (timeRemaining <= 300) {
+                    timerElement.classList.add('warning');
+                }
+                
+                // Auto submit when time's up
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    alert('Waktu habis! Ujian akan otomatis disubmit.');
+                    submitTest();
+                }
+            }, 1000);
+        }
+        
+        function startQuestionTimer() {
+            questionTimeRemaining = 60;
+            const fillElement = document.getElementById('questionTimerFill');
+            
+            if (questionTimerInterval) {
+                clearInterval(questionTimerInterval);
+            }
+            
+            questionTimerInterval = setInterval(() => {
+                questionTimeRemaining--;
+                const percentage = (questionTimeRemaining / 60) * 100;
+                fillElement.style.width = percentage + '%';
+                
+                if (questionTimeRemaining <= 0) {
+                    clearInterval(questionTimerInterval);
+                }
+            }, 1000);
+        }
+        
+        function buildNavigationGrid() {
+            const navGrid = document.getElementById('navGrid');
+            navGrid.innerHTML = '';
+            
+            questions.forEach((_, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'nav-btn';
+                btn.textContent = index + 1;
+                btn.onclick = () => loadQuestion(index);
+                navGrid.appendChild(btn);
+            });
+            
+            updateNavigationGrid();
+        }
+        
+        function updateNavigationGrid() {
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach((btn, index) => {
+                btn.classList.remove('answered', 'flagged', 'current');
+                
+                if (index === currentQuestionIndex) {
+                    btn.classList.add('current');
+                }
+                if (userAnswers[index] !== null) {
+                    btn.classList.add('answered');
+                }
+                if (flaggedQuestions[index]) {
+                    btn.classList.add('flagged');
+                }
+            });
+        }
+        
+        function loadQuestion(index) {
+            currentQuestionIndex = index;
+            const question = questions[index];
+            
+            document.getElementById('questionNumber').textContent = 
+                `Soal ${index + 1} dari ${questions.length}`;
+            document.getElementById('questionText').textContent = question.q;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, optIndex) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                if (userAnswers[index] === optIndex) {
+                    optionDiv.classList.add('selected');
+                }
+                
+                optionDiv.innerHTML = `
+                    <span class="option-label">${String.fromCharCode(65 + optIndex)}.</span>
+                    <span>${option}</span>
+                `;
+                
+                optionDiv.onclick = () => selectAnswer(optIndex);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            // Update flag button
+            const flagText = document.getElementById('flagText');
+            flagText.textContent = flaggedQuestions[index] ? 'Batal Ragu' : 'Ragu-ragu';
+            
+            updateNavigationGrid();
+            startQuestionTimer();
+        }
+        
+        function selectAnswer(optionIndex) {
+            userAnswers[currentQuestionIndex] = optionIndex;
+            
+            // Update UI
+            document.querySelectorAll('.option').forEach((opt, idx) => {
+                opt.classList.toggle('selected', idx === optionIndex);
+            });
+            
+            updateNavigationGrid();
+        }
+        
+        function navQuestion(direction) {
+            let newIndex = currentQuestionIndex + direction;
+            if (newIndex < 0) newIndex = 0;
+            if (newIndex >= questions.length) newIndex = questions.length - 1;
+            loadQuestion(newIndex);
+        }
+        
+        function toggleFlag() {
+            flaggedQuestions[currentQuestionIndex] = !flaggedQuestions[currentQuestionIndex];
+            const flagText = document.getElementById('flagText');
+            flagText.textContent = flaggedQuestions[currentQuestionIndex] ? 'Batal Ragu' : 'Ragu-ragu';
+            updateNavigationGrid();
+        }
+        
+        function clearAnswer() {
+            userAnswers[currentQuestionIndex] = null;
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            updateNavigationGrid();
+        }
+        
+        function showSubmitModal() {
+            const answered = userAnswers.filter(a => a !== null).length;
+            const unanswered = questions.length - answered;
+            const flagged = flaggedQuestions.filter(f => f).length;
+            
+            document.getElementById('submitStats').innerHTML = `
+                <p><strong>Total Soal:</strong> ${questions.length}</p>
+                <p><strong>Terjawab:</strong> ${answered}</p>
+                <p><strong>Belum Dijawab:</strong> ${unanswered}</p>
+                <p><strong>Ditandai Ragu:</strong> ${flagged}</p>
+            `;
+            
+            document.getElementById('submitModal').classList.add('active');
+        }
+        
+        function closeSubmitModal() {
+            document.getElementById('submitModal').classList.remove('active');
+        }
+        
+        function submitTest() {
+            clearInterval(timerInterval);
+            clearInterval(questionTimerInterval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            closeSubmitModal();
+            
+            // Calculate results
+            let correct = 0;
+            let wrong = 0;
+            let unanswered = 0;
+            const categoryScores = {};
+            
+            questions.forEach((q, index) => {
+                const userAnswer = userAnswers[index];
+                const category = q.cat;
+                
+                if (!categoryScores[category]) {
+                    categoryScores[category] = { correct: 0, total: 0 };
+                }
+                categoryScores[category].total++;
+                
+                if (userAnswer === null) {
+                    unanswered++;
+                } else if (userAnswer === q.answer) {
+                    correct++;
+                    categoryScores[category].correct++;
+                } else {
+                    wrong++;
+                }
+            });
+            
+            const score = Math.round((correct / questions.length) * 100);
+            const passed = score >= 65;
+            
+            // Display results
+            document.getElementById('scoreValue').textContent = score;
+            document.getElementById('correctCount').textContent = correct;
+            document.getElementById('wrongCount').textContent = wrong;
+            document.getElementById('unansweredCount').textContent = unanswered;
+            
+            const scoreCircle = document.getElementById('scoreCircle');
+            const resultStatus = document.getElementById('resultStatus');
+            
+            if (passed) {
+                scoreCircle.classList.add('pass');
+                scoreCircle.classList.remove('fail');
+                resultStatus.classList.add('pass');
+                resultStatus.classList.remove('fail');
+                resultStatus.textContent = '✅ LULUS';
+            } else {
+                scoreCircle.classList.add('fail');
+                scoreCircle.classList.remove('pass');
+                resultStatus.classList.add('fail');
+                resultStatus.classList.remove('pass');
+                resultStatus.textContent = '❌ TIDAK LULUS';
+            }
+            
+            // Category breakdown
+            const breakdownContainer = document.getElementById('categoryBreakdown');
+            breakdownContainer.innerHTML = '<h3>Breakdown per Kategori</h3>';
+            
+            Object.keys(categoryScores).sort().forEach(cat => {
+                const data = categoryScores[cat];
+                const catScore = Math.round((data.correct / data.total) * 100);
+                
+                const item = document.createElement('div');
+                item.className = 'category-item';
+                item.innerHTML = `
+                    <span class="category-name">${cat}</span>
+                    <span class="category-score">${data.correct}/${data.total} (${catScore}%)</span>
+                `;
+                breakdownContainer.appendChild(item);
+            });
+            
+            showScreen('resultScreen');
+        }
+        
+        function showResultScreen() {
+            showScreen('resultScreen');
+        }
+        
+        function showReviewScreen() {
+            const reviewContainer = document.getElementById('reviewContainer');
+            reviewContainer.innerHTML = '';
+            
+            questions.forEach((q, index) => {
+                const userAnswer = userAnswers[index];
+                const isCorrect = userAnswer === q.answer;
+                
+                const reviewItem = document.createElement('div');
+                reviewItem.className = 'review-item';
+                
+                let optionsHTML = '';
+                q.options.forEach((opt, optIdx) => {
+                    let optClass = 'review-option';
+                    if (optIdx === q.answer) {
+                        optClass += ' correct-answer';
+                    }
+                    if (userAnswer === optIdx && !isCorrect) {
+                        optClass += ' wrong-answer';
+                    }
+                    if (userAnswer === optIdx && isCorrect) {
+                        optClass += ' user-answer';
+                    }
+                    
+                    optionsHTML += `
+                        <div class="${optClass}">
+                            ${String.fromCharCode(65 + optIdx)}. ${opt}
+                            ${optIdx === q.answer ? ' ✓ (Jawaban Benar)' : ''}
+                            ${userAnswer === optIdx && !isCorrect ? ' ✗ (Jawaban Anda)' : ''}
+                        </div>
+                    `;
+                });
+                
+                reviewItem.innerHTML = `
+                    <div class="review-header">
+                        <div class="review-number">Soal ${index + 1} - ${q.cat}</div>
+                        <div class="review-status ${isCorrect ? 'correct' : 'wrong'}">
+                            ${isCorrect ? '✓ Benar' : '✗ Salah'}
+                        </div>
+                    </div>
+                    <div class="review-question">${q.q}</div>
+                    <div class="review-options">${optionsHTML}</div>
+                    <div class="review-explanation">
+                        <strong>💡 Pembahasan:</strong>
+                        ${q.exp}
+                    </div>
+                `;
+                
+                reviewContainer.appendChild(reviewItem);
+            });
+            
+            showScreen('reviewScreen');
+        }
+        
+        function showLearnScreen() {
+            const topicsContainer = document.getElementById('learnTopics');
+            topicsContainer.innerHTML = '';
+            
+            materiBelajar.forEach(materi => {
+                const btn = document.createElement('button');
+                btn.className = 'topic-btn';
+                btn.textContent = materi.title;
+                btn.onclick = () => loadLearnContent(materi.id);
+                topicsContainer.appendChild(btn);
+            });
+            
+            showScreen('learnScreen');
+        }
+        
+        function loadLearnContent(materiId) {
+            const materi = materiBelajar.find(m => m.id === materiId);
+            if (materi) {
+                document.getElementById('learnContent').innerHTML = `
+                    <h2>${materi.title}</h2>
+                    ${materi.content}
+                `;
+            }
+        }
+    </script>
+</body>
+
+// ==================== VARIABLES ====================
+let soalAktif = [], indexSoal = 0, jawaban = {}, ragu = {};
+let timerInterval, sisaWaktu = 0, namaPeserta = '', warningCount = 0, tesSelesai = false;
+
+const WAKTU = {kognitif:90*60, mental:60*60, tkb:45*60, full:120*60};
+const JUMLAH = {kognitif:60, mental:60, tkb:50, full:110};
+
+function shuffle(arr) {
+    const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a;
+}
+
+// ==================== MULAI TES ====================
+function mulaiTes(mode) {
+    const nama = document.getElementById('inputNama').value.trim();
+    if (!nama) { alert('Masukkan nama peserta!'); return; }
+    if (!confirm('Siap memulai tes? Waktu akan berjalan.')) return;
+    
+    namaPeserta = nama;
+    document.getElementById('namaPeserta').textContent = nama;
+    
+    let pool = [];
+    if (mode==='kognitif'||mode==='full') pool = pool.concat(soalIQ);
+    if (mode==='mental'||mode==='full') pool = pool.concat(soalMental);
+    if (mode==='tkb'||mode==='full') pool = pool.concat(koperasi);
+    
+    const max = Math.min(JUMLAH[mode], pool.length);
+    soalAktif = shuffle(pool).slice(0, max).map(q => {
+        const benar = q.options[q.answer];
+        const opts = shuffle([...q.options]);
+        return {...q, options:opts, answer:opts.indexOf(benar)};
+    });
+    
+    sisaWaktu = WAKTU[mode];
+    jawaban = {}; ragu = {}; indexSoal = 0; tesSelesai = false;
+    
+    document.getElementById('totalSoal').textContent = soalAktif.length;
+    document.getElementById('welcomeScreen').style.display = 'none';
+    document.getElementById('testScreen').style.display = 'block';
+    
+    buatGrid();
+    tampilSoal(0);
+    mulaiTimer();
+    setupAntiCheat();
+    
+    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+}
+
+// ==================== TIMER ====================
+function mulaiTimer() {
+    timerInterval = setInterval(() => {
+        sisaWaktu--;
+        const m = Math.floor(sisaWaktu/60), s = sisaWaktu%60;
+        const el = document.getElementById('timerDisplay');
+        el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        if (sisaWaktu <= 300) el.classList.add('warning');
+        if (sisaWaktu <= 0) { clearInterval(timerInterval); alert('⏰ Waktu habis!'); submitTes(); }
+    }, 1000);
+}
+
+// ==================== ANTI CHEAT ====================
+function setupAntiCheat() {
+    document.addEventListener('visibilitychange', () => { if (document.hidden && !tesSelesai) addWarning(); });
+    window.addEventListener('blur', () => { if (!tesSelesai) addWarning(); });
+}
+function addWarning() {
+    warningCount++;
+    const el = document.getElementById('warningBadge');
+    document.getElementById('warnCount').textContent = warningCount;
+    el.style.display = 'block';
+    setTimeout(() => el.style.display = 'none', 3000);
+    if (warningCount >= 3) { alert('⚠️ 3 peringatan! Tes diakhiri.'); submitTes(); }
+}
+
+// ==================== NAVIGASI SOAL ====================
+function buatGrid() {
+    const grid = document.getElementById('gridSoal');
+    grid.innerHTML = '';
+    soalAktif.forEach((_, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'grid-btn';
+        btn.textContent = i + 1;
+        btn.onclick = () => tampilSoal(i);
+        btn.id = 'gbtn-' + i;
+        grid.appendChild(btn);
+    });
+}
+
+function tampilSoal(idx) {
+    indexSoal = idx;
+    const q = soalAktif[idx];
+    document.getElementById('nomorSoal').textContent = idx + 1;
+    document.getElementById('textSoal').textContent = q.q;
+    document.getElementById('kategoriSoal').textContent = q.cat;
+    
+    const pct = ((idx+1)/soalAktif.length)*100;
+    document.getElementById('progressBar').style.width = pct + '%';
+    
+    const container = document.getElementById('opsiContainer');
+    container.innerHTML = '';
+    q.options.forEach((opt, i) => {
+        const div = document.createElement('div');
+        div.className = 'option' + (jawaban[idx]===i ? ' selected' : '');
+        div.innerHTML = `<span class="option-letter">${String.fromCharCode(65+i)}</span><span>${opt}</span>`;
+        div.onclick = () => pilihJawaban(i);
+        container.appendChild(div);
+    });
+    
+    document.getElementById('btnPrev').disabled = idx === 0;
+    document.getElementById('btnNext').textContent = idx === soalAktif.length-1 ? 'Selesai →' : 'Selanjutnya →';
+    document.getElementById('btnFlag').classList.toggle('active', !!ragu[idx]);
+    updateGrid();
+}
+
+function pilihJawaban(i) { jawaban[indexSoal] = i; tampilSoal(indexSoal); }
+function hapusJawaban() { delete jawaban[indexSoal]; tampilSoal(indexSoal); }
+function soalBerikutnya() { if (indexSoal < soalAktif.length-1) tampilSoal(indexSoal+1); }
+function soalSebelumnya() { if (indexSoal > 0) tampilSoal(indexSoal-1); }
+function toggleRagu() { ragu[indexSoal] = !ragu[indexSoal]; tampilSoal(indexSoal); }
+
+function updateGrid() {
+    soalAktif.forEach((_, i) => {
+        const btn = document.getElementById('gbtn-'+i);
+        btn.className = 'grid-btn';
+        if (jawaban[i] !== undefined) btn.classList.add('answered');
+        if (ragu[i]) btn.classList.add('flagged');
+        if (i === indexSoal) btn.classList.add('current');
+    });
+}
+
+// ==================== SUBMIT ====================
+function konfirmasiSubmit() {
+    const dijawab = Object.keys(jawaban).length;
+    const belum = soalAktif.length - dijawab;
+    if (confirm(`Dijawab: ${dijawab}\nBelum: ${belum}\n\nKirim jawaban?`)) submitTes();
+}
+
+function submitTes() {
+    tesSelesai = true;
+    clearInterval(timerInterval);
+    if (document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+    
+    let benar=0, salah=0, kosong=0;
+    soalAktif.forEach((q,i) => {
+        if (jawaban[i]===undefined) kosong++;
+        else if (jawaban[i]===q.answer) benar++;
+        else salah++;
+    });
+    
+    const skor = Math.round((benar/soalAktif.length)*100);
+    const lulus = skor >= 65;
+    const waktuPakai = (WAKTU.full||sisaWaktu) - sisaWaktu;
+    const mPakai = Math.floor(waktuPakai/60), sPakai = waktuPakai%60;
+    
+    document.getElementById('testScreen').style.display = 'none';
+    document.getElementById('resultScreen').style.display = 'block';
+    
+    document.getElementById('hasilContent').innerHTML = `
+        <h1 style="color:#1B3A5C;text-align:center">📊 Hasil Simulasi CAT</h1>
+        <div style="text-align:center;font-size:64px;font-weight:bold;color:#1B3A5C;margin:15px 0">${skor}</div>
+        <div style="text-align:center;font-size:22px;font-weight:bold;color:${lulus?'#27ae60':'#e74c3c'};margin-bottom:20px">${lulus?'✅ LULUS':'❌ TIDAK LULUS'}</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0">
+            <div style="background:#d4edda;padding:15px;border-radius:8px;text-align:center"><div style="font-size:26px;font-weight:bold;color:#27ae60">${benar}</div><div style="font-size:12px;color:#666">✅ Benar</div></div>
+            <div style="background:#f8d7da;padding:15px;border-radius:8px;text-align:center"><div style="font-size:26px;font-weight:bold;color:#e74c3c">${salah}</div><div style="font-size:12px;color:#666">❌ Salah</div></div>
+            <div style="background:#f5f5f5;padding:15px;border-radius:8px;text-align:center"><div style="font-size:26px;font-weight:bold;color:#95a5a6">${kosong}</div><div style="font-size:12px;color:#666">➖ Kosong</div></div>
+        </div>
+        <div style="background:#f8f9fa;padding:15px;border-radius:8px;margin:15px 0;font-size:14px">
+            <p>👤 <b>Nama:</b> ${namaPeserta}</p>
+            <p>📝 <b>Total Soal:</b> ${soalAktif.length}</p>
+            <p>🎯 <b>Passing Grade:</b> 65</p>
+            <p>⏱️ <b>Waktu:</b> ${mPakai} menit ${sPakai} detik</p>
+            <p>⚠️ <b>Peringatan:</b> ${warningCount}/3</p>
+            <p>📅 <b>Tanggal:</b> ${new Date().toLocaleString('id-ID')}</p>
+        </div>`;
+}
+
+// ==================== REVIEW ====================
+function tampilkanReview() {
+    const area = document.getElementById('reviewArea');
+    if (area.style.display==='block') { area.style.display='none'; return; }
+    area.style.display = 'block';
+    area.innerHTML = '<h2 style="color:#1B3A5C;margin-bottom:15px">📝 Review Jawaban</h2>' +
+        soalAktif.map((q,i) => {
+            const ua = jawaban[i], ok = ua===q.answer, empty = ua===undefined;
+            const cls = empty?'empty':(ok?'correct':'wrong');
+            const icon = empty?'➖':(ok?'✅':'❌');
+            const opts = q.options.map((o,j) => {
+                let c = 'review-opt';
+                if (j===q.answer) c += ' correct-ans';
+                if (j===ua && !ok) c += ' user wrong';
+                else if (j===ua) c += ' user';
+                return `<div class="${c}">${String.fromCharCode(65+j)}. ${o}${j===q.answer?' ✓ (Kunci)':''}${j===ua?' ← Jawaban Anda':''}</div>`;
+            }).join('');
+            return `<div class="review-item ${cls}"><div class="review-q">${icon} Soal ${i+1}: ${q.q}</div>${opts}<div class="explanation"><b>💡 Pembahasan:</b> ${q.exp}</div></div>`;
+        }).join('');
+}
+
+window.addEventListener('beforeunload', (e) => {
+    if (document.getElementById('testScreen').style.display==='block' && !tesSelesai) { e.preventDefault(); e.returnValue=''; }
+});
+</script>
+</body>
+</html>
